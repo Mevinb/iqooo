@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
+    "build": "echo 'Static web preview ready in website/'",
     "export:web": "expo export --platform web",
     "export:native": "expo export --platform android --platform ios",
     "test:ui": "playwright test",
