@@ -1,0 +1,27 @@
+# OSX
+.DS_Store
+
+# Android / Gradle build outputs & caches
+build/
+app/build/
+.gradle/
+.kotlin/
+.cxx/
+app/.cxx/
+
+# Local machine configuration
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.hprof
+
+# Keystores (protect release keys, allow default debug keystore)
+*.keystore
+*.jks
+!app/debug.keystore
+
+# Generated inline modules & bundles
+app/src/main/java/inline/
+*.jsbundle

@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "PATHWISE",
+    "slug": "pathwise",
+    "scheme": "pathwise",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F5F8F7",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pathwise.prototype"
+    },
+    "android": {
+      "package": "com.pathwise.prototype"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "name": "PATHWISE — Your next chapter",
+      "favicon": "./assets/brand/icon.png"
+    },
+    "plugins": ["expo-router", "expo-font"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "icon": "./assets/brand/icon.png"
+  }
+}
