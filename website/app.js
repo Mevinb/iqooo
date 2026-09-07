@@ -1,4 +1,5 @@
 /* PATHWISE website — frontend-only replica of the mobile prototype.
+   Styled with Tailwind CSS (CDN + brand tokens in index.html).
    Same sample data, same deterministic rules, same copy. No backend. */
 (function () {
   "use strict";
@@ -160,13 +161,33 @@
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
   function resetStore() { state = freshState(); save(); _adv = null; _whatif = null; _edit = null; _expanded = null; }
 
+  /* ---------------- Tailwind component class shortcuts ---------------- */
+  var B = "inline-flex items-center justify-center gap-2.5 rounded-[17px] min-h-[52px] px-[22px] py-3.5 text-sm font-bold no-underline transition active:scale-[.985] cursor-pointer border border-transparent disabled:opacity-45 disabled:cursor-not-allowed";
+  var BP = B + " bg-teal text-white hover:bg-teal-dark";
+  var BS = B + " bg-mint text-teal border-[#C5DED3] hover:bg-[#cfe7da]";
+  var BG = B + " bg-transparent text-teal";
+  var BW = B + " bg-white text-teal border-line hover:bg-faded";
+  var BSM = " min-h-[44px] px-4 py-2 text-[13px] rounded-[13px]";
+  var IB = "w-12 h-12 rounded-2xl inline-grid place-items-center border border-line bg-white cursor-pointer shrink-0 text-ink hover:bg-faded";
+  var CARD = "bg-white border border-line rounded-[22px] p-[22px] shadow-card";
+  var MICRO = "text-xs text-mute";
+  var LEAD = "text-mute text-[17px] leading-[1.65] mb-[22px] max-w-[34rem]";
+  var KICK = "text-xs font-extrabold tracking-[.14em] uppercase text-teal mb-2.5";
+  var HSEC = "font-extrabold tracking-[-1.2px] leading-[1.12] mb-3 text-[clamp(28px,3.4vw,40px)]";
+  var HDISP = "font-extrabold tracking-[-2.2px] leading-[1.04] my-5 text-[clamp(40px,5.4vw,64px)]";
+  var FLD = "block font-bold mt-[22px] mb-2.5";
+  var INP = "w-full bg-white border border-line rounded-[14px] min-h-[52px] px-4 py-3 text-sm text-ink";
+  var CTA = "flex flex-col sm:flex-row gap-3 sm:items-center sm:flex-wrap [&>*]:w-full sm:[&>*]:w-auto";
+  var WRAP = "mx-auto max-w-[1120px] px-4 md:px-[22px]";
+  var PH1 = "font-extrabold tracking-[-1px] leading-[1.12] m-0 text-[clamp(28px,3vw,36px)]";
+
   /* ---------------- helpers ---------------- */
   function esc(s) {
     return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   }
   function toast(msg) {
     var root = document.getElementById("toast-root");
-    root.innerHTML = '<div class="toast" role="status">' + esc(msg) + "</div>";
+    root.innerHTML = '<div class="fixed left-1/2 bottom-24 -translate-x-1/2 bg-deep text-white px-[18px] py-3 rounded-[14px] text-[13.5px] font-semibold z-[120] shadow-pop" role="status">' + esc(msg) + "</div>";
     clearTimeout(toast._t);
     toast._t = setTimeout(function () { root.innerHTML = ""; }, 2200);
   }
@@ -211,15 +232,16 @@
   function icon(name, size) {
     size = size || 18;
     var body = ICONS[name] || ICONS.info;
-    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + body + "</svg>";
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="shrink-0">' + body + "</svg>";
   }
   function pill(text, opts) {
     opts = opts || {};
-    var cls = "pill" + (opts.white ? " white" : "") + (opts.sand ? " sand" : "") + (opts.deep ? " deep" : "");
+    var cls = "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold max-w-full " +
+      (opts.white ? "bg-white text-mute border border-line" : opts.sand ? "bg-sand text-honey" : opts.deep ? "bg-[#315B47] text-[#DBF0D7]" : "bg-mint text-teal");
     return '<span class="' + cls + '">' + (opts.icon ? icon(opts.icon, 13) : "") + "<span>" + text + "</span></span>";
   }
   function notice(text, warning) {
-    return '<div class="notice' + (warning ? " warn" : "") + '" role="note">' + icon("info", 17) + "<span>" + text + "</span></div>";
+    return '<div class="flex gap-2.5 items-start rounded-[14px] p-3.5 text-[13.5px] font-medium ' + (warning ? "bg-sand text-honey" : "bg-mint text-teal") + '" role="note">' + icon("info", 17) + "<span>" + text + "</span></div>";
   }
   function journeySVG() {
     return '<svg viewBox="0 0 350 270" width="100%" height="250" role="img" aria-label="Three possible routes branch from your experience toward a new career">' +
@@ -237,6 +259,17 @@
       '<path d="M266 35 L272 41 L282 29" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
       '<circle cx="274" cy="151" r="5" fill="#B1C5BA"/><circle cx="90" cy="60" r="5" fill="#C1CDD2"/>' +
       "</svg>";
+  }
+  function timeline(compact) {
+    var steps = ["Your strengths", "New skills", "New chapter"];
+    var out = steps.map(function (l, i) {
+      var dot = i === 0
+        ? '<span class="w-[26px] h-[26px] rounded-full grid place-items-center bg-[#CCE8B5] border border-[#CCE8B5] text-deep">' + icon("check", 12) + "</span>"
+        : '<span class="w-[26px] h-[26px] rounded-full grid place-items-center border border-[#729584] text-[#C2D5C9]">' + icon(i === 1 ? "book" : "flag", 12) + "</span>";
+      return (i > 0 ? '<div class="flex-1 h-px bg-[#638773] mt-[13px]"></div>' : "") +
+        '<div class="flex-[2] flex flex-col items-center gap-2 text-center">' + dot + '<span class="text-[10.5px] text-[#C2D5C9]">' + l + "</span></div>";
+    }).join("");
+    return '<div class="flex items-start ' + (compact ? "my-0" : "my-[22px] mx-0 mb-2") + '">' + out + "</div>";
   }
 
   /* ---------------- per-page ephemeral UI state ---------------- */
@@ -272,53 +305,58 @@
   ];
   function topbar(active) {
     var links = TABS.map(function (t) {
-      return '<a href="' + t.href + '" class="' + (active === t.key ? "active" : "") + '">' + esc(t.label) + "</a>";
-    }).join("");
-    return '<header class="topbar"><div class="topbar-inner">' +
-      '<a class="brand" href="#/" aria-label="Pathwise home"><span class="brand-mark">' + icon("path", 22).replace("currentColor", "white").replace(/currentColor/g, "white") + '</span><span>pathwise<small>Your next chapter</small></span></a>' +
-      '<nav class="nav-links" aria-label="Primary">' + links + '<a href="#/next-steps" class="' + (active === "steps" ? "active" : "") + '">Next steps</a></nav>' +
-      '<div class="top-actions">' +
-      '<a class="btn btn-secondary btn-sm hide-m" href="#/what-if">' + icon("sliders", 16) + '<span>What if?</span></a>' +
-      '<a class="btn btn-primary btn-sm" href="#/advisor">' + icon("sparkle", 16) + '<span>Advisor</span></a>' +
-      '<button class="icon-btn menu-btn" aria-label="Open menu" onclick="PW.menu(true)">' + icon("sliders", 20) + "</button>" +
+      return '<a href="' + t.href + '" class="no-underline text-mute font-semibold text-[13.5px] px-3.5 py-2.5 rounded-xl min-h-[44px] inline-flex items-center hover:bg-faded hover:text-ink' + (active === t.key ? " bg-mint text-teal" : "") + '">' + esc(t.label) + "</a>";
+    }).join("") + '<a href="#/next-steps" class="no-underline text-mute font-semibold text-[13.5px] px-3.5 py-2.5 rounded-xl min-h-[44px] inline-flex items-center hover:bg-faded hover:text-ink' + (active === "steps" ? " bg-mint text-teal" : "") + '">Next steps</a>';
+    return '<header class="sticky top-0 z-50 bg-mist/90 backdrop-blur-md border-b border-line"><div class="mx-auto max-w-[1120px] px-4 md:px-[22px] py-3 flex items-center gap-3.5">' +
+      '<a class="flex items-center gap-2.5 no-underline text-ink font-extrabold text-[21px] tracking-[-.7px]" href="#/" aria-label="Pathwise home"><span class="w-9 h-9 rounded-xl bg-teal grid place-items-center shrink-0 text-white">' + icon("path", 22) + '</span><span>pathwise<span class="block text-[10px] font-semibold tracking-[.14em] uppercase text-mute">Your next chapter</span></span></a>' +
+      '<nav class="hidden lg:flex gap-1 ml-2" aria-label="Primary">' + links + "</nav>" +
+      '<div class="ml-auto flex gap-2.5 items-center">' +
+      '<a class="' + BS + BSM + ' max-md:hidden" href="#/what-if">' + icon("sliders", 16) + "<span>What if?</span></a>" +
+      '<a class="' + BP + BSM + '" href="#/advisor">' + icon("sparkle", 16) + "<span>Advisor</span></a>" +
+      '<button class="' + IB + ' lg:hidden" aria-label="Open menu" onclick="PW.menu(true)">' + icon("sliders", 20) + "</button>" +
       "</div></div></header>";
   }
   function tabbar(active) {
-    return '<nav class="tabbar" aria-label="App tabs">' + TABS.map(function (t) {
-      return '<a href="' + t.href + '" class="' + (active === t.key ? "active" : "") + '">' + icon(t.ic, 22) + "<span>" + esc(t.label) + "</span></a>";
+    return '<nav class="flex lg:hidden fixed left-3 right-3 bottom-3 z-[60] bg-white border border-line rounded-[22px] p-2 shadow-pop" aria-label="App tabs">' + TABS.map(function (t) {
+      return '<a href="' + t.href + '" class="flex-1 flex flex-col items-center gap-[3px] no-underline text-mute text-[10.5px] font-bold p-2 rounded-[14px] min-h-[56px] justify-center' + (active === t.key ? " bg-mint text-teal" : "") + '">' + icon(t.ic, 22) + "<span>" + esc(t.label) + "</span></a>";
     }).join("") + "</nav>";
   }
   function footer() {
-    return '<footer class="footer"><div class="footer-grid">' +
-      '<div style="max-width:34rem"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span class="brand-mark" style="width:30px;height:30px">' + icon("path", 18).replace(/currentColor/g, "white") + '</span><b>pathwise</b></div>' +
-      "<p>Calm, interactive prototype for a career pathway advisor. All people, providers, listings, costs and timelines are illustrative samples — not verified opportunities, guaranteed employment, or scholarship decisions. No live AI, recording, application submission or enrollment.</p>" +
-      '<p class="micro">Frontend-only hackathon prototype · mirrored from the mobile app · <a href="#/profile">Reset demo</a> restores Priya\u2019s starting journey.</p></div>' +
-      '<div style="display:flex;gap:26px;flex-wrap:wrap"><div><b>Demo</b><br><a href="#/advisor">Advisor chat</a><br><a href="#/paths">Compare paths</a><br><a href="#/what-if">What-if simulator</a><br><a href="#/explore">Explore</a></div>' +
-      '<div><b>Progress</b><br><a href="#/next-steps">Next steps</a><br><a href="#/profile">Profile</a><br><a href="#/edit-profile">Edit profile</a></div></div>' +
+    return '<footer class="border-t border-line mt-[60px] pt-[34px] pb-[130px] lg:pb-[110px] text-mute text-[13px]"><div class="mx-auto max-w-[1120px] px-4 md:px-[22px] flex gap-5 justify-between flex-wrap">' +
+      '<div class="max-w-[34rem]"><div class="flex gap-2.5 items-center mb-2.5"><span class="w-[30px] h-[30px] rounded-[10px] bg-teal grid place-items-center text-white">' + icon("path", 18) + '</span><b class="text-ink">pathwise</b></div>' +
+      "<p class='m-0'>Calm, interactive prototype for a career pathway advisor. All people, providers, listings, costs and timelines are illustrative samples — not verified opportunities, guaranteed employment, or scholarship decisions. No live AI, recording, application submission or enrollment.</p>" +
+      '<p class="text-xs mt-2.5">Frontend-only hackathon prototype · styled with Tailwind CSS · <a class="text-teal" href="#/profile">Reset demo</a> restores Priya\u2019s starting journey.</p></div>' +
+      '<div class="flex gap-[26px] flex-wrap"><div><b class="text-ink">Demo</b><br><a class="text-teal" href="#/advisor">Advisor chat</a><br><a class="text-teal" href="#/paths">Compare paths</a><br><a class="text-teal" href="#/what-if">What-if simulator</a><br><a class="text-teal" href="#/explore">Explore</a></div>' +
+      '<div><b class="text-ink">Progress</b><br><a class="text-teal" href="#/next-steps">Next steps</a><br><a class="text-teal" href="#/profile">Profile</a><br><a class="text-teal" href="#/edit-profile">Edit profile</a></div></div>' +
       "</div></footer>";
   }
-  function appShell(active, inner) {
+  function sideNav(active) {
+    var link = function (href, key, ic, label) {
+      return '<a href="' + href + '" class="flex gap-3 items-center px-3.5 py-3 rounded-[14px] no-underline text-mute font-bold text-sm min-h-[52px] hover:bg-faded hover:text-ink' + (active === key ? " bg-mint text-teal" : "") + '">' + icon(ic, 20) + "<span>" + label + "</span></a>";
+    };
     var p = state.profile;
-    var side = '<aside class="side" aria-label="Demo navigation">' +
-      TABS.map(function (t) { return '<a href="' + t.href + '" class="' + (active === t.key ? "active" : "") + '">' + icon(t.ic, 20) + "<span>" + esc(t.label) + "</span></a>"; }).join("") +
-      '<a href="#/next-steps" class="' + (active === "steps" ? "active" : "") + '">' + icon("check", 20) + "<span>Next steps</span></a>" +
-      '<a href="#/advisor" class="' + (active === "advisor" ? "active" : "") + '">' + icon("sparkle", 20) + "<span>Advisor</span></a>" +
-      '<a href="#/what-if" class="' + (active === "whatif" ? "active" : "") + '">' + icon("sliders", 20) + "<span>What if?</span></a>" +
-      '<div class="mini"><b>' + esc(p.name) + " · " + esc(p.goal) + "</b><br>" + esc(money(p.budget)) + " · " + esc(String(p.hours)) + " hrs/wk<br>Active: <b>" + esc(pathById(state.activePath).label) + "</b></div>" +
+    return '<aside class="hidden lg:flex sticky top-[76px] bg-white border border-line rounded-[22px] p-3.5 flex-col gap-1.5" aria-label="Demo navigation">' +
+      link("#/home", "home", "home", "Home") + link("#/paths", "paths", "path", "Paths") +
+      link("#/explore", "explore", "compass", "Explore") + link("#/profile", "profile", "user", "Profile") +
+      link("#/next-steps", "steps", "check", "Next steps") + link("#/advisor", "advisor", "sparkle", "Advisor") + link("#/what-if", "whatif", "sliders", "What if?") +
+      '<div class="mt-2.5 bg-mist border border-line rounded-2xl p-3.5 text-[12.5px] text-mute"><b class="text-ink">' + esc(p.name) + " · " + esc(p.goal) + "</b><br>" + esc(money(p.budget)) + " · " + esc(String(p.hours)) + ' hrs/wk<br>Active: <b class="text-ink">' + esc(pathById(state.activePath).label) + "</b></div>" +
       "</aside>";
-    return topbar(active) + '<div class="app-layout">' + side + '<main id="main" class="content fade">' + inner + "</main></div>" + tabbar(active) + footer() + mobileMenu();
+  }
+  function appShell(active, inner) {
+    return topbar(active) + '<div class="mx-auto max-w-[1120px] px-4 md:px-[22px] py-[26px] pb-[100px] grid gap-[26px] items-start lg:grid-cols-[230px_1fr]">' + sideNav(active) + '<main id="main" class="min-w-0 fade">' + inner + "</main></div>" + tabbar(active) + footer() + mobileMenu();
   }
   function landingShell(inner) {
     return topbar("") + '<main id="main" class="fade">' + inner + "</main>" + tabbar("") + footer() + mobileMenu();
   }
   function mobileMenu() {
     if (!_menu) return "";
-    return '<div class="mobile-menu open" onclick="if(event.target===this)PW.menu(false)"><div class="sheet" role="dialog" aria-label="Menu">' +
-      TABS.map(function (t) { return '<a href="' + t.href + '" onclick="PW.menu(false)">' + icon(t.ic, 20) + "&nbsp;&nbsp;" + esc(t.label) + "</a>"; }).join("") +
-      '<a href="#/next-steps" onclick="PW.menu(false)">' + icon("check", 20) + "&nbsp;&nbsp;Next steps</a>" +
-      '<a href="#/advisor" onclick="PW.menu(false)">' + icon("sparkle", 20) + "&nbsp;&nbsp;Advisor</a>" +
-      '<a href="#/what-if" onclick="PW.menu(false)">' + icon("sliders", 20) + "&nbsp;&nbsp;What if?</a>" +
-      '<button class="btn btn-ghost" style="width:100%" onclick="PW.menu(false)">Close</button></div></div>';
+    var link = function (href, ic, label) {
+      return '<a href="' + href + '" onclick="PW.menu(false)" class="flex p-3.5 rounded-xl no-underline text-ink font-bold min-h-[52px] items-center gap-2.5 hover:bg-faded">' + icon(ic, 20) + "<span>" + label + "</span></a>";
+    };
+    return '<div class="fixed inset-0 z-[90] bg-[rgba(12,34,27,.45)]" onclick="if(event.target===this)PW.menu(false)"><div class="bg-white rounded-t-[22px] absolute left-0 right-0 bottom-0 p-[18px]" role="dialog" aria-label="Menu">' +
+      link("#/home", "home", "Home") + link("#/paths", "path", "Paths") + link("#/explore", "compass", "Explore") + link("#/profile", "user", "Profile") +
+      link("#/next-steps", "check", "Next steps") + link("#/advisor", "sparkle", "Advisor") + link("#/what-if", "sliders", "What if?") +
+      '<button class="' + BG + ' w-full" onclick="PW.menu(false)">Close</button></div></div>';
   }
 
   /* ---------------- views ---------------- */
@@ -330,70 +368,68 @@
       var fit = fitMessage(pw, p);
       var warn = pw.cost > p.budget;
       var bg = ["#DDEFE8", "#DCE8ED", "#F4ECD9"][i];
-      return '<article class="card' + (rec === pw.id ? " hl" : "") + '">' +
-        '<div style="display:flex;gap:10px;align-items:center;margin-bottom:12px"><span style="width:34px;height:34px;border-radius:11px;background:' + bg + ';display:grid;place-items:center;font-weight:800">' + pw.id.toUpperCase() + '</span><span class="micro">' + esc(pw.tag) + "</span>" +
-        (rec === pw.id ? '<span style="margin-left:auto">' + pill("Suggested", { icon: "sparkle" }) + "</span>" : "") + "</div>" +
-        "<h3>" + esc(pw.title) + "</h3>" +
-        '<p class="micro" style="margin:2px 0 8px">' + esc(pw.subtitle) + "</p>" +
-        '<p>' + esc(pw.description) + "</p>" +
-        '<div class="meta-row"><span>' + icon("rupee", 15) + esc(money(pw.cost)) + '</span><span>' + icon("clock", 15) + esc(String(duration(pw, p))) + ' months</span></div>' +
-        '<div class="fit ' + (warn ? "warn" : "ok") + '">' + esc(fit) + "</div>" +
-        '<div style="margin-top:16px"><a class="btn btn-secondary btn-sm" style="width:100%" href="#/pathway/' + pw.id + '">Explore ' + esc(pw.label) + " " + icon("arrow", 15) + "</a></div></article>";
+      return '<article class="' + CARD + (rec === pw.id ? " border-teal border-[1.5px]" : "") + '">' +
+        '<div class="flex gap-2.5 items-center mb-3"><span class="w-[34px] h-[34px] rounded-[11px] grid place-items-center font-extrabold text-[13px]" style="background:' + bg + '">' + pw.id.toUpperCase() + '</span><span class="' + MICRO + '">' + esc(pw.tag) + "</span>" +
+        (rec === pw.id ? '<span class="ml-auto">' + pill("Suggested", { icon: "sparkle" }) + "</span>" : "") + "</div>" +
+        '<h3 class="m-0 text-[20px] leading-[1.3] font-extrabold tracking-[-.4px]">' + esc(pw.title) + "</h3>" +
+        '<p class="' + MICRO + ' mt-0.5 mb-2">' + esc(pw.subtitle) + "</p>" +
+        '<p class="my-2 text-mute text-sm">' + esc(pw.description) + "</p>" +
+        '<div class="flex gap-[18px] items-center mt-4 font-semibold text-[13.5px] flex-wrap"><span class="inline-flex gap-1.5 items-center text-mute font-semibold">' + icon("rupee", 15) + esc(money(pw.cost)) + '</span><span class="inline-flex gap-1.5 items-center text-mute font-semibold">' + icon("clock", 15) + esc(String(duration(pw, p))) + " months</span></div>" +
+        '<div class="text-xs font-bold mt-3 ' + (warn ? "text-honey" : "text-teal") + '">' + esc(fit) + "</div>" +
+        '<div class="mt-4"><a class="' + BS + BSM + ' w-full" href="#/pathway/' + pw.id + '">Explore ' + esc(pw.label) + " " + icon("arrow", 15) + "</a></div></article>";
     }).join("");
 
     var opps = OPPORTUNITIES.slice(0, 3).map(function (o) {
       var bg = o.kind === "Course" ? "#DCE8ED" : o.kind === "Job" ? "#F4ECD9" : "#EAE6F1";
       var icn = o.kind === "Course" ? "book" : o.kind === "Job" ? "briefcase" : "graduation";
-      return '<article class="card"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span class="opp-kind" style="background:' + bg + '">' + icon(icn, 22) + "</span>" + pill(esc(o.kind), { white: true }) + "</div>" +
-        "<h3 style='font-size:17px'>" + esc(o.title) + "</h3>" + '<p class="micro">' + esc(o.provider) + " · " + esc(o.location) + "</p>" +
-        '<div class="meta-row"><span>' + esc(o.cost) + "</span><span>" + esc(o.time) + "</span></div></article>";
+      return '<article class="' + CARD + '"><div class="flex gap-2.5 items-center mb-2.5"><span class="w-[46px] h-[46px] rounded-[14px] grid place-items-center shrink-0 text-ink" style="background:' + bg + '">' + icon(icn, 22) + "</span>" + pill(esc(o.kind), { white: true }) + "</div>" +
+        '<h3 class="m-0 text-[17px] font-extrabold tracking-[-.4px]">' + esc(o.title) + "</h3>" + '<p class="' + MICRO + ' mt-1">' + esc(o.provider) + " · " + esc(o.location) + "</p>" +
+        '<div class="flex gap-[18px] items-center mt-4 font-semibold text-[13.5px]"><span class="text-ink">' + esc(o.cost) + '</span><span class="text-mute">' + esc(o.time) + "</span></div></article>";
     }).join("");
 
     var done = state.completed.length;
-    return '<div class="wrap"><section class="hero">' +
-      '<div><span class="eyebrow"><span class="dot"></span>Frontend-only hackathon prototype · same journey as the mobile app</span>' +
-      "<h1 class='display'>Your next chapter<br>starts with you.</h1>" +
-      '<p class="lead">Big ambitions. Real-life responsibilities. Meet <b>Priya</b>, a retail operations associate in Kochi exploring data analytics — compare <b>three sample routes</b>, preview what-if changes, and take one small step. No account needed.</p>' +
-      '<div class="cta-row"><a class="btn btn-primary" href="#/advisor">Explore my options ' + icon("arrow", 18) + '</a><a class="btn btn-secondary" href="#/home">Try the demo</a></div>' +
-      '<p class="micro" style="margin-top:12px">A safe space to explore · Simulated advisor · Illustrative costs &amp; listings</p>' +
-      '<div class="strip">' + pill(money(p.budget) + " budget", { icon: "rupee", white: true }) + pill(p.hours + " hrs / week", { icon: "clock", white: true }) + pill(p.relocate ? "Open to moving" : "Stay near home", { icon: "pin", white: true }) + "</div></div>" +
-      '<div><div class="hero-card"><div class="hero-card-head">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' + pill("Your next chapter", { deep: true, icon: "path" }) + '<span style="opacity:.8">' + icon("external", 18) + "</span></div>" +
-      '<div style="font-size:26px;font-weight:800;letter-spacing:-.8px;color:#fff">' + esc(active.title) + '</div><div style="font-size:13px;color:#BCD0C6;margin-top:6px">' + esc(active.subtitle) + "</div>" +
-      '<div class="timeline">' + ["Your strengths", "New skills", "New chapter"].map(function (l, i) {
-        return (i > 0 ? '<div class="t-line"></div>' : "") + '<div class="t-step"><span class="t-dot' + (i === 0 ? " done" : "") + '">' + icon(i === 0 ? "check" : i === 1 ? "book" : "flag", 12) + '</span><span class="t-label">' + l + "</span></div>";
-      }).join("") + "</div>" +
-      '<div style="display:flex;gap:16px;border-top:1px solid #3B5E4E;padding-top:14px;font-size:13px"><span>' + icon("clock", 14) + " " + duration(active, p) + ' months</span><span>' + esc(money(active.cost)) + ' est.</span><span style="color:#CCE8B5;font-weight:700">' + esc(active.label) + "</span></div>" +
-      '</div><div class="hero-card-body"><div class="journey-frame">' + journeySVG() + "</div>" +
-      '<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap"><a class="btn btn-primary btn-sm" style="flex:1" href="#/home">Open live demo</a><a class="btn btn-white btn-sm" style="flex:1" href="#/paths">Compare 3 routes</a></div>' +
-      '<p class="micro" style="text-align:center;margin:12px 0 0">Sample journey · ' + esc(String(done)) + " of 4 first steps complete</p></div></div></div>" +
+    return '<div class="' + WRAP + '"><section class="py-14 md:py-[56px] md:pt-[56px] pt-9 grid gap-11 items-center lg:grid-cols-[1.05fr_.95fr]">' +
+      '<div><span class="inline-flex items-center gap-2 bg-white border border-line rounded-full px-3.5 py-[7px] text-xs font-semibold text-mute"><span class="w-2 h-2 rounded-full bg-teal"></span>Frontend-only hackathon prototype · Tailwind CSS · same journey as the mobile app</span>' +
+      "<h1 class='" + HDISP + "'>Your next chapter<br>starts with you.</h1>" +
+      '<p class="' + LEAD + '">Big ambitions. Real-life responsibilities. Meet <b class="text-ink">Priya</b>, a retail operations associate in Kochi exploring data analytics — compare <b class="text-ink">three sample routes</b>, preview what-if changes, and take one small step. No account needed.</p>' +
+      '<div class="' + CTA + '"><a class="' + BP + '" href="#/advisor">Explore my options ' + icon("arrow", 18) + '</a><a class="' + BS + '" href="#/home">Try the demo</a></div>' +
+      '<p class="' + MICRO + ' mt-3">A safe space to explore · Simulated advisor · Illustrative costs &amp; listings</p>' +
+      '<div class="flex gap-2.5 flex-wrap my-[18px]">' + pill(money(p.budget) + " budget", { icon: "rupee", white: true }) + pill(p.hours + " hrs / week", { icon: "clock", white: true }) + pill(p.relocate ? "Open to moving" : "Stay near home", { icon: "pin", white: true }) + "</div></div>" +
+      '<div><div class="bg-white border border-line rounded-[26px] shadow-pop overflow-hidden"><div class="bg-deep text-[#dcebe2] p-[22px]">' +
+      '<div class="flex justify-between items-center mb-3.5">' + pill("Your next chapter", { deep: true, icon: "path" }) + '<span class="opacity-80">' + icon("external", 18) + "</span></div>" +
+      '<div class="text-[26px] font-extrabold tracking-[-.8px] text-white leading-tight">' + esc(active.title) + '</div><div class="text-[13px] text-[#BCD0C6] mt-1.5">' + esc(active.subtitle) + "</div>" +
+      timeline(false) +
+      '<div class="flex gap-4 border-t border-[#3B5E4E] pt-3.5 text-[13px] flex-wrap"><span class="inline-flex items-center gap-1.5">' + icon("clock", 14) + " " + duration(active, p) + ' months</span><span>' + esc(money(active.cost)) + ' est.</span><span class="text-[#CCE8B5] font-bold">' + esc(active.label) + "</span></div>" +
+      '</div><div class="p-[22px]"><div class="bg-gradient-to-b from-white to-[#eef4ef] border border-line rounded-[20px] p-2.5">' + journeySVG() + "</div>" +
+      '<div class="flex gap-2.5 mt-3.5 flex-col sm:flex-row"><a class="' + BP + BSM + ' flex-1" href="#/home">Open live demo</a><a class="' + BW + BSM + ' flex-1" href="#/paths">Compare 3 routes</a></div>' +
+      '<p class="' + MICRO + ' text-center mt-3 mb-0">Sample journey · ' + esc(String(done)) + " of 4 first steps complete</p></div></div></div>" +
       "</section>" +
 
-      '<section class="section-pad"><div class="kicker">How the demo works</div><h2 class="section">One goal. A plan. And a backup plan.</h2>' +
-      '<p class="lead">Five minutes, end to end — the same flow as the phone app, laid out for a bigger screen.</p>' +
-      '<div class="steps">' +
+      '<section class="pt-[54px] pb-2"><div class="' + KICK + '">How the demo works</div><h2 class="' + HSEC + '">One goal. A plan. And a backup plan.</h2>' +
+      '<p class="' + LEAD + '">Five minutes, end to end — the same flow as the phone app, laid out for a bigger screen.</p>' +
+      '<div class="grid gap-3.5 mt-[22px] sm:grid-cols-2 lg:grid-cols-4">' +
       [["1", "Talk it through", "Answer 5 gentle questions. Family time asks about hours before budget."], ["2", "Compare 3 routes", "Plan A deepens technical skills, B builds on operations, C starts smaller."], ["3", "Preview change", "Lower the budget or hours. Apply or discard — nothing changes silently."], ["4", "Take one step", "Check off a 5-minute task, save an opportunity, edit your profile."]].map(function (s) {
-        return '<div class="step"><b>' + s[0] + "</b><div style='font-weight:800'>" + s[1] + "</div><div class='micro' style='margin-top:6px'>" + s[2] + "</div></div>";
+        return '<div class="bg-white border border-line rounded-[18px] p-[18px]"><b class="grid w-8 h-8 rounded-[10px] bg-mint text-teal place-items-center mb-3">' + s[0] + "</b><div class='font-extrabold text-ink'>" + s[1] + "</div><div class='" + MICRO + " mt-1.5'>" + s[2] + "</div></div>";
       }).join("") + "</div></section>" +
 
-      '<section class="section-pad"><div class="kicker">Your possible paths</div><h2 class="section">A future that fits your life.</h2>' +
-      '<p class="lead">You don\u2019t have to start from zero.</p><div style="max-width:46rem;margin-bottom:18px">' + notice(esc(recommendationReason(p)), pathById(rec).cost > p.budget) + "</div>" +
-      '<div class="grid3">' + cards + "</div>" +
-      '<div class="cta-row" style="margin-top:18px"><a class="btn btn-secondary" href="#/paths">Open comparison ' + icon("arrow", 17) + '</a><a class="btn btn-ghost" href="#/what-if">' + icon("sliders", 17) + " What if my situation changes?</a></div></section>" +
+      '<section class="pt-[54px] pb-2"><div class="' + KICK + '">Your possible paths</div><h2 class="' + HSEC + '">A future that fits your life.</h2>' +
+      '<p class="' + LEAD + '">You don\u2019t have to start from zero.</p><div class="max-w-[46rem] mb-[18px]">' + notice(esc(recommendationReason(p)), pathById(rec).cost > p.budget) + "</div>" +
+      '<div class="grid gap-4 md:grid-cols-3">' + cards + "</div>" +
+      '<div class="' + CTA + ' mt-[18px]"><a class="' + BS + '" href="#/paths">Open comparison ' + icon("arrow", 17) + '</a><a class="' + BG + '" href="#/what-if">' + icon("sliders", 17) + " What if my situation changes?</a></div></section>" +
 
-      '<section class="section-pad"><div class="banner"><div><div class="kicker" style="color:#CCE8B5">Guided conversation</div><h2>Let\u2019s think it through.</h2><p>Your advisor is a tap away — branching questions, typed answers, a sample voice demo and a camera placeholder. Explicitly simulated, never recorded.</p>' +
-      '<div class="cta-row"><a class="btn btn-primary" href="#/advisor">Start the conversation ' + icon("arrow", 17) + "</a></div></div>" +
-      '<div class="card" style="border:0"><b>What it asks</b><div class="micro" style="margin:6px 0 12px">Goal → priority → budget → time → support → review</div>' +
-      ["Data analyst · Business analyst · Reporting specialist", "\u20B960,000 · \u20B920,000 · \u20B98,000 start", "8 · 4 · 12 hours a week"].map(function (t) { return '<div style="display:flex;gap:8px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px">' + icon("check", 15) + "<span>" + t + "</span></div>"; }).join("") + "</div></div></section>" +
+      '<section class="pt-[54px] pb-2"><div class="bg-deep text-[#e7f0e9] rounded-[26px] p-7 md:p-[30px] grid gap-6 md:grid-cols-[1.2fr_.8fr] items-center relative overflow-hidden"><div><div class="text-xs font-extrabold tracking-[.14em] uppercase text-[#CCE8B5] mb-2.5">Guided conversation</div><h2 class="text-white m-0 mb-2.5 font-extrabold tracking-[-1.2px] leading-[1.12] text-[clamp(28px,3.4vw,40px)]">Let\u2019s think it through.</h2><p class="text-[#bcd0c6] m-0 mb-[18px]">Your advisor is a tap away — branching questions, typed answers, a sample voice demo and a camera placeholder. Explicitly simulated, never recorded.</p>' +
+      '<div class="' + CTA + '"><a class="' + BP + '" href="#/advisor">Start the conversation ' + icon("arrow", 17) + "</a></div></div>" +
+      '<div class="' + CARD + ' border-0"><b class="text-ink">What it asks</b><div class="' + MICRO + ' my-1.5 mb-3">Goal → priority → budget → time → support → review</div>' +
+      ["Data analyst · Business analyst · Reporting specialist", "\u20B960,000 · \u20B920,000 · \u20B98,000 start", "8 · 4 · 12 hours a week"].map(function (t) { return '<div class="flex gap-2 items-center py-2 border-t border-line text-[13.5px] text-ink"><span class="text-teal">' + icon("check", 15) + "</span><span>" + t + "</span></div>"; }).join("") + "</div></div></section>" +
 
-      '<section class="section-pad"><div class="kicker">Explore</div><h2 class="section">Your experience opens doors.</h2><p class="lead">Illustrative courses, a job example and a fellowship — search, filter, save.</p><div class="grid3">' + opps + '</div><div class="cta-row" style="margin-top:18px"><a class="btn btn-secondary" href="#/explore">Browse all examples ' + icon("arrow", 17) + "</a></div></section>" +
+      '<section class="pt-[54px] pb-2"><div class="' + KICK + '">Explore</div><h2 class="' + HSEC + '">Your experience opens doors.</h2><p class="' + LEAD + '">Illustrative courses, a job example and a fellowship — search, filter, save.</p><div class="grid gap-4 md:grid-cols-3">' + opps + '</div><div class="' + CTA + ' mt-[18px]"><a class="' + BS + '" href="#/explore">Browse all examples ' + icon("arrow", 17) + "</a></div></section>" +
 
-      '<section class="section-pad"><div class="grid2"><div class="card" style="background:var(--mint);border-color:var(--mint)"><div class="kicker">Your next small step</div><h3 style="font-size:24px">Small steps. A different tomorrow.</h3><p>' + esc(String(done)) + " of 4 complete · " + (done === 4 ? "A strong start. Take a moment to recognise it." : "A little progress is still progress.") + '</p><div class="progress" style="margin:14px 0">' + TASKS.map(function (t) { return '<i class="' + (state.completed.indexOf(t.id) >= 0 ? "done" : "") + '"></i>'; }).join("") + '</div><a class="btn btn-primary btn-sm" href="#/next-steps">Continue steps ' + icon("arrow", 15) + "</a></div>" +
-      '<div class="card" style="background:var(--deep);border-color:var(--deep);color:#e7f0e9"><div class="kicker" style="color:#CCE8B5">The person behind the plan</div><h3 style="color:#fff;font-size:24px">' + esc(p.name) + " · " + esc(p.role) + '</h3><p style="color:#bcd0c6">' + esc(p.location) + " · Goal: " + esc(p.goal) + "</p>" +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">' + p.strengths.map(function (s) { return pill(esc(s), { white: true }); }).join("") + '</div><a class="btn btn-secondary btn-sm" href="#/profile">View profile</a></div>' +
+      '<section class="pt-[54px] pb-2"><div class="grid gap-4 md:grid-cols-2"><div class="' + CARD + ' bg-mint border-mint"><div class="' + KICK + '">Your next small step</div><h3 class="text-[24px] m-0 font-extrabold text-ink">Small steps. A different tomorrow.</h3><p class="text-sm text-ink mt-2">' + esc(String(done)) + " of 4 complete · " + (done === 4 ? "A strong start. Take a moment to recognise it." : "A little progress is still progress.") + '</p><div class="flex gap-1.5 my-3.5">' + TASKS.map(function (t) { return '<i class="flex-1 h-[7px] rounded-full ' + (state.completed.indexOf(t.id) >= 0 ? "bg-teal" : "bg-[#BCD5C6]") + '"></i>'; }).join("") + '</div><a class="' + BP + BSM + '" href="#/next-steps">Continue steps ' + icon("arrow", 15) + "</a></div>" +
+      '<div class="' + CARD + ' bg-deep border-deep"><div class="text-xs font-extrabold tracking-[.14em] uppercase text-[#CCE8B5] mb-2.5">The person behind the plan</div><h3 class="text-white text-[24px] m-0 font-extrabold">' + esc(p.name) + " · " + esc(p.role) + '</h3><p class="text-[#bcd0c6] text-sm">' + esc(p.location) + " · Goal: " + esc(p.goal) + "</p>" +
+      '<div class="flex gap-2 flex-wrap my-3">' + p.strengths.map(function (s) { return pill(esc(s), { white: true }); }).join("") + '</div><a class="' + BS + BSM + '" href="#/profile">View profile</a></div>' +
       "</div></section>" +
 
-      '<section class="section-pad"><div class="card">' + notice("Illustrative costs and timelines. Outcomes are not guaranteed. Organisations, fees and openings are sample content, not verified listings.") + '<p class="micro" style="margin:12px 0 0">Prototype boundaries: no live AI, recording, emotion analysis, application submission or enrollment. Changes persist in this browser until you use Reset demo.</p></div></section></div>';
+      '<section class="pt-[54px] pb-2"><div class="' + CARD + '">' + notice("Illustrative costs and timelines. Outcomes are not guaranteed. Organisations, fees and openings are sample content, not verified listings.") + '<p class="' + MICRO + ' mt-3 mb-0">Prototype boundaries: no live AI, recording, emotion analysis, application submission or enrollment. Changes persist in this browser until you use Reset demo.</p></div></section></div>';
   }
 
   function vAdvisor() {
@@ -404,7 +440,7 @@
     var stepNum = a.order.indexOf(a.stage) + 1;
 
     var convo = "";
-    if (a.reply) convo += '<div style="display:flex;justify-content:flex-end"><div class="chat-bubble">' + esc(a.reply) + "</div></div>";
+    if (a.reply) convo += '<div class="flex justify-end"><div class="bg-mint text-teal px-4 py-[11px] rounded-2xl rounded-br-[4px] text-[13px] font-semibold max-w-[90%] mb-[18px]">' + esc(a.reply) + "</div></div>";
 
     if (isReview) {
       var d = a.draft;
@@ -414,52 +450,52 @@
         ["clock", "Your own pace", d.hours + " hours a week"],
         ["heart", "Support that fits", d.support.join(", ") || "Not shared"]
       ].map(function (r) {
-        return '<div style="display:flex;gap:12px;align-items:flex-start"><span style="color:var(--teal)">' + icon(r[0], 20) + '</span><span style="flex:1"><span class="micro">' + r[1] + '</span><br><b>' + esc(r[2]) + "</b></span></div>";
-      }).join('<div style="height:1px;background:var(--line)"></div>');
-      convo += '<div class="fade"><h1 style="font-size:30px;letter-spacing:-1px;line-height:1.15;margin:0 0 8px">There\u2019s a way forward.<br>Let\u2019s find yours.</h1>' +
-        '<p class="micro" style="font-size:14px">Here\u2019s what we\u2019ll build around. You can change any of this later.</p>' +
-        '<div class="card" style="display:grid;gap:16px;margin-top:16px">' + rows + "</div>" +
-        '<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap"><button class="btn btn-ghost" onclick="PW.advRevisit()">Revisit my answers</button></div>' +
-        '<div style="margin-top:14px">' + notice("We\u2019ll compare three sample routes. There\u2019s no single \u201Cright\u201D path, and you\u2019re in control of the choice.") + "</div></div>";
+        return '<div class="flex gap-3 items-start"><span class="text-teal">' + icon(r[0], 20) + '</span><span class="flex-1"><span class="' + MICRO + '">' + r[1] + '</span><br><b class="text-ink">' + esc(r[2]) + "</b></span></div>";
+      }).join('<div class="h-px bg-line"></div>');
+      convo += '<div class="fade"><h1 class="text-[30px] tracking-[-1px] leading-[1.15] m-0 mb-2 font-extrabold">There\u2019s a way forward.<br>Let\u2019s find yours.</h1>' +
+        '<p class="text-sm text-mute">Here\u2019s what we\u2019ll build around. You can change any of this later.</p>' +
+        '<div class="' + CARD + ' grid gap-4 mt-4">' + rows + "</div>" +
+        '<div class="flex gap-2.5 mt-3.5 flex-wrap"><button class="' + BG + '" onclick="PW.advRevisit()">Revisit my answers</button></div>' +
+        '<div class="mt-3.5">' + notice("We\u2019ll compare three sample routes. There\u2019s no single \u201Cright\u201D path, and you\u2019re in control of the choice.") + "</div></div>";
     } else {
-      convo += '<div class="fade" key="' + esc(a.stage) + '"><div class="micro">Step ' + stepNum + " of 5 · " + esc(a.stage) + "</div>" +
-        '<h1 style="font-size:27px;letter-spacing:-.8px;line-height:1.25;margin:6px 0 8px">' + esc(q.title) + "</h1>" +
-        '<p style="color:var(--muted);margin:0 0 18px">' + esc(q.detail) + "</p>";
+      convo += '<div class="fade"><div class="' + MICRO + '">Step ' + stepNum + " of 5 · " + esc(a.stage) + "</div>" +
+        '<h1 class="text-[27px] tracking-[-.8px] leading-[1.25] my-1.5 mb-2 font-extrabold">' + esc(q.title) + "</h1>" +
+        '<p class="text-mute m-0 mb-[18px]">' + esc(q.detail) + "</p>";
       if (a.voice) {
-        convo += '<div class="voice-box"><div class="wave" aria-hidden="true">' + [10, 17, 29, 19, 31, 14, 25, 33, 18, 27, 12, 20, 8].map(function (h) { return '<i style="height:' + h + 'px"></i>'; }).join("") + '</div><p style="text-align:center;font-size:13px;margin:0 0 12px">Sample voice: \u201C' + esc(q.options[0]) + '\u201D</p><button class="btn btn-secondary" style="width:100%" onclick="PW.advPick(0)">Use this sample answer</button></div>';
+        convo += '<div class="bg-deep text-[#DCEBDD] rounded-[17px] p-[18px] mb-4"><div class="flex gap-1 justify-center items-end h-[34px] mb-3" aria-hidden="true">' + [10, 17, 29, 19, 31, 14, 25, 33, 18, 27, 12, 20, 8].map(function (h) { return '<i class="w-1 rounded bg-[#CBE6BB] block" style="height:' + h + 'px"></i>'; }).join("") + '</div><p class="text-center text-[13px] m-0 mb-3">Sample voice: \u201C' + esc(q.options[0]) + '\u201D</p><button class="' + BS + ' w-full" onclick="PW.advPick(0)">Use this sample answer</button></div>';
       }
-      convo += '<div style="display:grid;gap:9px">' + q.options.map(function (op, i) {
-        return '<button class="choice" onclick="PW.advPick(' + i + ')"><span style="flex:1">' + esc(op) + "</span>" + icon("chevron", 16) + "</button>";
+      convo += '<div class="grid gap-[9px]">' + q.options.map(function (op, i) {
+        return '<button class="choice w-full text-left flex gap-2.5 items-center bg-white border border-line rounded-[14px] px-4 py-3.5 min-h-[52px] text-[13.5px] font-semibold text-ink cursor-pointer hover:border-teal" onclick="PW.advPick(' + i + ')"><span class="flex-1">' + esc(op) + "</span>" + icon("chevron", 16) + "</button>";
       }).join("") + "</div>" +
-        '<button class="btn btn-ghost" style="margin-top:8px" onclick="PW.advSkip()">Skip this question</button>';
-      if (a.hint) convo += '<div style="margin-top:12px">' + notice(esc(a.hint)) + "</div>";
-      if (a.stage === "goal") convo += '<p class="micro" style="text-align:center">A sample conversation for Priya, a career changer.</p>';
+        '<button class="' + BG + ' mt-2" onclick="PW.advSkip()">Skip this question</button>';
+      if (a.hint) convo += '<div class="mt-3">' + notice(esc(a.hint)) + "</div>";
+      if (a.stage === "goal") convo += '<p class="' + MICRO + ' text-center">A sample conversation for Priya, a career changer.</p>';
       convo += "</div>";
     }
 
     var foot = isReview
-      ? '<button class="btn btn-primary" style="width:100%" onclick="PW.advFinish()">See my possible paths ' + icon("arrow", 18) + "</button>"
-      : '<div style="display:flex;gap:8px"><div class="search" style="flex:1"><input id="adv-input" aria-label="Your answer" placeholder="Or tell me in your words\u2026" value="' + esc(a.text) + '" oninput="PW.advType(this.value)" onkeydown="if(event.key===\'Enter\')PW.advSend()" /><button class="icon-btn plain" style="width:40px;height:40px" aria-label="Send answer" onclick="PW.advSend()">' + icon("send", 18) + "</button></div>" +
-        '<button class="icon-btn" style="background:var(--teal);color:#fff;border-color:var(--teal)" aria-label="Try sample voice" onclick="PW.advVoice()">' + icon(a.voice ? "close" : "mic", 20) + "</button></div>" +
-        '<p class="micro" style="text-align:center;margin:10px 0 0">Simulated advisor · no recording or AI connection</p>';
+      ? '<button class="' + BP + ' w-full" onclick="PW.advFinish()">See my possible paths ' + icon("arrow", 18) + "</button>"
+      : '<div class="flex gap-2"><div class="flex gap-2.5 items-center bg-white border border-line rounded-[15px] px-3.5 flex-1"><input id="adv-input" aria-label="Your answer" placeholder="Or tell me in your words\u2026" value="' + esc(a.text) + '" oninput="PW.advType(this.value)" onkeydown="if(event.key===\'Enter\')PW.advSend()" class="border-0 outline-none flex-1 min-h-[51px] bg-transparent text-[13.5px] text-ink" /><button class="w-10 h-10 rounded-2xl inline-grid place-items-center cursor-pointer shrink-0 text-teal hover:bg-faded" aria-label="Send answer" onclick="PW.advSend()">' + icon("send", 18) + "</button></div>" +
+        '<button class="w-12 h-12 rounded-2xl inline-grid place-items-center cursor-pointer shrink-0 bg-teal text-white border border-teal hover:bg-teal-dark" aria-label="Try sample voice" onclick="PW.advVoice()">' + icon(a.voice ? "close" : "mic", 20) + "</button></div>" +
+        '<p class="' + MICRO + ' text-center mt-2.5 mb-0">Simulated advisor · no recording or AI connection</p>';
 
-    return '<div class="back-row"><a class="btn btn-white btn-sm" href="#/">' + icon("back", 16) + " Home</a></div>" +
-      '<div class="page-head"><div><h1>A little space for you</h1><p>Branching sample conversation · adaptive order · optional support</p></div>' +
-      '<button class="icon-btn" aria-label="Preview camera interaction" onclick="PW.camera(true)">' + icon("camera", 20) + "</button></div>" +
-      '<div class="advisor-grid"><div class="card">' +
-      '<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px"><span style="width:52px;height:52px;border-radius:50%;background:var(--teal);display:grid;place-items:center;color:#EAF2DE">' + icon("sparkle", 26) + '</span><span><b>Your Pathwise advisor</b><br><span class="micro">Demo · simulated</span></span></div>' +
-      convo + '<div style="position:sticky;bottom:0;background:#fff;padding-top:14px;border-top:1px solid var(--line);margin-top:18px">' + foot + "</div></div>" +
-      '<aside class="card"><b>What this demo shows</b><div class="micro" style="margin:6px 0 12px">Same logic as the phone app</div>' +
-      ["Choosing family time asks about study hours before budget.", "Typed answers map to the closest choice; anything else guides you back.", "Voice plays a sample transcript — nothing is recorded.", "Camera opens a placeholder — no device access used.", "Support questions are optional and skippable."].map(function (t) { return '<div style="display:flex;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:13px;color:var(--muted)">' + icon("check", 15) + "<span>" + t + "</span></div>"; }).join("") +
-      '<a class="btn btn-secondary btn-sm" style="width:100%;margin-top:12px" href="#/home">Skip to demo home</a></aside></div>' +
+    return '<div class="mb-4"><a class="' + BW + BSM + '" href="#/">' + icon("back", 16) + " Home</a></div>" +
+      '<div class="flex gap-3.5 items-start justify-between mb-[18px]"><div><h1 class="' + PH1 + '">A little space for you</h1><p class="text-mute mt-2">Branching sample conversation · adaptive order · optional support</p></div>' +
+      '<button class="' + IB + '" aria-label="Preview camera interaction" onclick="PW.camera(true)">' + icon("camera", 20) + "</button></div>" +
+      '<div class="grid gap-5 items-start xl:grid-cols-[1fr_360px]"><div class="' + CARD + '">' +
+      '<div class="flex gap-2.5 items-center mb-4"><span class="w-[52px] h-[52px] rounded-full bg-teal grid place-items-center text-[#EAF2DE] shrink-0">' + icon("sparkle", 26) + '</span><span><b class="text-ink">Your Pathwise advisor</b><br><span class="' + MICRO + '">Demo · simulated</span></span></div>' +
+      convo + '<div class="sticky bottom-0 bg-white pt-3.5 border-t border-line mt-[18px]">' + foot + "</div></div>" +
+      '<aside class="' + CARD + '"><b class="text-ink">What this demo shows</b><div class="' + MICRO + ' my-1.5 mb-3">Same logic as the phone app</div>' +
+      ["Choosing family time asks about study hours before budget.", "Typed answers map to the closest choice; anything else guides you back.", "Voice plays a sample transcript — nothing is recorded.", "Camera opens a placeholder — no device access used.", "Support questions are optional and skippable."].map(function (t) { return '<div class="flex gap-2 p-2 px-0 border-t border-line text-[13px] text-mute"><span class="text-teal">' + icon("check", 15) + "</span><span>" + t + "</span></div>"; }).join("") +
+      '<a class="' + BS + BSM + ' w-full mt-3" href="#/home">Skip to demo home</a></aside></div>' +
       cameraModal();
   }
   function cameraModal() {
     if (!_camera) return "";
-    return '<div class="modal-veil" onclick="if(event.target===this)PW.camera(false)"><div class="modal" role="dialog" aria-modal="true" aria-label="Camera preview placeholder"><h3 style="margin-top:0">A more personal conversation</h3>' +
-      '<div style="height:150px;border-radius:18px;background:var(--mint);display:grid;place-items:center;margin:14px 0;color:var(--teal)">' + icon("camera", 40) + '<span class="micro">Camera preview placeholder</span></div>' +
-      '<p style="color:var(--muted);font-size:14px">In a full app, you could choose to add a camera view. This prototype does not use your camera or interpret expressions.</p>' +
-      '<button class="btn btn-primary" style="width:100%" onclick="PW.camera(false)">Continue without camera</button></div></div>';
+    return '<div class="fixed inset-0 bg-[rgba(12,34,27,.45)] grid place-items-center p-[22px] z-[100]" onclick="if(event.target===this)PW.camera(false)"><div class="bg-white rounded-3xl p-[26px] max-w-[420px] w-full shadow-pop" role="dialog" aria-modal="true" aria-label="Camera preview placeholder"><h3 class="mt-0 text-ink font-extrabold text-[19px]">A more personal conversation</h3>' +
+      '<div class="h-[150px] rounded-[18px] bg-mint grid place-items-center my-3.5 text-teal text-center"><div>' + icon("camera", 40) + '<div class="' + MICRO + ' mt-2">Camera preview placeholder</div></div></div>' +
+      '<p class="text-mute text-sm">In a full app, you could choose to add a camera view. This prototype does not use your camera or interpret expressions.</p>' +
+      '<button class="' + BP + ' w-full" onclick="PW.camera(false)">Continue without camera</button></div></div>';
   }
 
   function vHome() {
@@ -468,34 +504,32 @@
     var next = null;
     for (var i = 0; i < TASKS.length; i++) if (state.completed.indexOf(TASKS[i].id) < 0) { next = TASKS[i]; break; }
     var stepBox = next
-      ? '<div class="card"><div style="display:flex;gap:12px;align-items:flex-start"><span style="background:var(--sand);padding:11px;border-radius:13px;color:var(--amber)">' + icon("note", 21) + '</span><span style="flex:1"><b>' + esc(next.title) + '</b><br><span class="micro">' + esc(next.time) + " · At your own pace</span></span></div>" +
-        '<a class="btn btn-secondary btn-sm" style="width:100%;margin-top:14px" href="#/next-steps">Take this step ' + icon("arrow", 15) + "</a></div>"
-      : '<div class="card" style="background:var(--mint);border-color:var(--mint)"><b>Look at the progress you\u2019ve made.</b><p class="micro" style="font-size:14px">Your first four steps are complete. Explore opportunities when you\u2019re ready.</p><a class="btn btn-primary btn-sm" href="#/explore">Explore opportunities</a></div>';
-    return '<div class="page-head"><div><div class="micro">A little progress, every day.</div><h1>Hello, ' + esc(p.name) + "</h1></div>" +
-      '<a class="icon-btn" href="#/what-if" aria-label="Explore what-if changes">' + icon("sliders", 20) + "</a></div>" +
-      '<h2 class="section">A future that fits your life.</h2><p class="lead">You don\u2019t have to start from zero.</p>' +
-      '<a href="#/pathway/' + path.id + '" style="text-decoration:none;color:inherit"><div class="banner" style="cursor:pointer"><div>' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' + pill("Your next chapter", { deep: true, icon: "path" }) + '<span style="opacity:.7">' + icon("external", 18) + "</span></div>" +
-      '<h2 style="font-size:30px">' + esc(path.title) + '</h2><p>' + esc(path.subtitle) + "</p>" +
-      '<div class="timeline">' + ["Your strengths", "New skills", "New chapter"].map(function (l, i) {
-        return (i > 0 ? '<div class="t-line"></div>' : "") + '<div class="t-step"><span class="t-dot' + (i === 0 ? " done" : "") + '">' + icon(i === 0 ? "check" : i === 1 ? "book" : "flag", 12) + '</span><span class="t-label">' + l + "</span></div>";
-      }).join("") + "</div>" +
-      '<div style="display:flex;gap:16px;border-top:1px solid #3B5E4E;padding-top:14px;font-size:13px;flex-wrap:wrap"><span>' + icon("clock", 14) + " " + duration(path, p) + ' months</span><span>' + esc(money(path.cost)) + ' est.</span><span style="color:#CCE8B5;font-weight:700">' + esc(path.label) + "</span></div>" +
-      '</div><div><div class="journey-frame">' + journeySVG() + "</div></div></div></a>" +
-      '<a href="#/paths" style="display:flex;justify-content:space-between;align-items:center;padding:18px 4px;text-decoration:none;font-weight:700;color:var(--teal)"><span>' + icon("path", 18) + ' One goal. Three possible routes.</span>' + icon("arrow", 18) + "</a>" +
-      '<div class="grid2"><div><div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 12px"><h3 style="margin:0">Your next small step</h3><a href="#/next-steps" style="font-size:13px;font-weight:700">View all</a></div>' + stepBox + "</div>" +
-      '<div><div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 12px"><h3 style="margin:0">Let\u2019s think it through.</h3></div><div class="card" style="background:#E8EDE4"><div style="display:flex;gap:12px;align-items:center"><span style="width:44px;height:44px;border-radius:50%;background:#D2E0C8;display:grid;place-items:center;color:var(--teal)">' + icon("sparkle", 24) + '</span><span style="flex:1"><b>Your advisor is a tap away.</b><br><span class="micro">Branching demo conversation</span></span><a class="icon-btn" href="#/advisor" aria-label="Talk to your advisor">' + icon("arrow", 18) + "</a></div></div>" +
-      (state.revision > 0 ? '<p style="color:var(--teal);font-size:13px">Your pathway reflects your latest changes.</p>' : "") +
-      '<p class="micro" style="text-align:center">Your story, your pace. Sample journey for this prototype.</p></div></div>';
+      ? '<div class="' + CARD + '"><div class="flex gap-3 items-start"><span class="bg-sand p-[11px] rounded-[13px] text-honey">' + icon("note", 21) + '</span><span class="flex-1"><b class="text-ink">' + esc(next.title) + '</b><br><span class="' + MICRO + '">' + esc(next.time) + " · At your own pace</span></span></div>" +
+        '<a class="' + BS + BSM + ' w-full mt-3.5" href="#/next-steps">Take this step ' + icon("arrow", 15) + "</a></div>"
+      : '<div class="' + CARD + ' bg-mint border-mint"><b class="text-ink">Look at the progress you\u2019ve made.</b><p class="text-sm mt-1">Your first four steps are complete. Explore opportunities when you\u2019re ready.</p><a class="' + BP + BSM + '" href="#/explore">Explore opportunities</a></div>';
+    return '<div class="flex gap-3.5 items-start justify-between mb-[18px]"><div><div class="' + MICRO + '">A little progress, every day.</div><h1 class="' + PH1 + '">Hello, ' + esc(p.name) + "</h1></div>" +
+      '<a class="' + IB + '" href="#/what-if" aria-label="Explore what-if changes">' + icon("sliders", 20) + "</a></div>" +
+      '<h2 class="' + HSEC + '">A future that fits your life.</h2><p class="' + LEAD + '">You don\u2019t have to start from zero.</p>' +
+      '<a href="#/pathway/' + path.id + '" class="no-underline text-inherit block"><div class="bg-deep text-[#e7f0e9] rounded-[26px] p-7 md:p-[30px] grid gap-6 md:grid-cols-[1.2fr_.8fr] items-center relative overflow-hidden cursor-pointer"><div>' +
+      '<div class="flex justify-between items-center mb-3.5">' + pill("Your next chapter", { deep: true, icon: "path" }) + '<span class="opacity-70">' + icon("external", 18) + "</span></div>" +
+      '<h2 class="text-white m-0 mb-2.5 font-extrabold tracking-[-.8px] leading-[1.12] text-[30px]">' + esc(path.title) + '</h2><p class="text-[#bcd0c6] m-0">' + esc(path.subtitle) + "</p>" +
+      timeline(false) +
+      '<div class="flex gap-4 border-t border-[#3B5E4E] pt-3.5 text-[13px] flex-wrap"><span class="inline-flex items-center gap-1.5">' + icon("clock", 14) + " " + duration(path, p) + ' months</span><span>' + esc(money(path.cost)) + ' est.</span><span class="text-[#CCE8B5] font-bold">' + esc(path.label) + "</span></div>" +
+      '</div><div><div class="bg-gradient-to-b from-white to-[#eef4ef] border border-line rounded-[20px] p-2.5">' + journeySVG() + "</div></div></div></a>" +
+      '<a href="#/paths" class="flex justify-between items-center px-1 py-[18px] no-underline font-bold text-teal"><span class="inline-flex items-center gap-2">' + icon("path", 18) + " One goal. Three possible routes.</span>" + icon("arrow", 18) + "</a>" +
+      '<div class="grid gap-4 md:grid-cols-2"><div><div class="flex justify-between items-center my-1.5 mb-3"><h3 class="m-0 text-ink font-extrabold text-[19px]">Your next small step</h3><a href="#/next-steps" class="text-[13px] font-bold text-teal">View all</a></div>' + stepBox + "</div>" +
+      '<div><div class="flex justify-between items-center my-1.5 mb-3"><h3 class="m-0 text-ink font-extrabold text-[19px]">Let\u2019s think it through.</h3></div><div class="' + CARD + ' bg-[#E8EDE4]"><div class="flex gap-3 items-center"><span class="w-11 h-11 rounded-full bg-[#D2E0C8] grid place-items-center text-teal shrink-0">' + icon("sparkle", 24) + '</span><span class="flex-1"><b class="text-ink">Your advisor is a tap away.</b><br><span class="' + MICRO + '">Branching demo conversation</span></span><a class="' + IB + '" href="#/advisor" aria-label="Talk to your advisor">' + icon("arrow", 18) + "</a></div></div>" +
+      (state.revision > 0 ? '<p class="text-teal text-[13px]">Your pathway reflects your latest changes.</p>' : "") +
+      '<p class="' + MICRO + ' text-center">Your story, your pace. Sample journey for this prototype.</p></div></div>';
   }
 
   function vPaths() {
     var p = state.profile;
     var rec = recommend(p);
-    var head = '<div class="page-head"><div><h1>Your possible paths</h1><p>A good plan leaves room for life.</p></div><span class="icon-btn" style="background:var(--mint);border-color:var(--mint);color:var(--teal)">' + icon("path", 22) + "</span></div>" +
-      '<div class="strip">' + pill(money(p.budget) + " budget", { icon: "rupee", white: true }) + pill(p.hours + " hrs / week", { icon: "clock", white: true }) + pill(p.relocate ? "Open to moving" : "Stay near home", { icon: "pin", white: true }) + "</div>" +
-      '<div style="max-width:46rem">' + notice(esc(recommendationReason(p)), pathById(rec).cost > p.budget) + "</div>" +
-      '<div class="compare-tabs" role="tablist"><button class="' + (!_compare ? "on" : "") + '" onclick="PW.compare(false)" role="tab">Your routes</button><button class="' + (_compare ? "on" : "") + '" onclick="PW.compare(true)" role="tab">Compare</button></div>';
+    var head = '<div class="flex gap-3.5 items-start justify-between mb-[18px]"><div><h1 class="' + PH1 + '">Your possible paths</h1><p class="text-mute mt-2">A good plan leaves room for life.</p></div><span class="w-12 h-12 rounded-2xl inline-grid place-items-center shrink-0 bg-mint border border-mint text-teal">' + icon("path", 22) + "</span></div>" +
+      '<div class="flex gap-2.5 flex-wrap my-[18px]">' + pill(money(p.budget) + " budget", { icon: "rupee", white: true }) + pill(p.hours + " hrs / week", { icon: "clock", white: true }) + pill(p.relocate ? "Open to moving" : "Stay near home", { icon: "pin", white: true }) + "</div>" +
+      '<div class="max-w-[46rem]">' + notice(esc(recommendationReason(p)), pathById(rec).cost > p.budget) + "</div>" +
+      '<div class="flex bg-[#E5ECE6] rounded-[13px] p-1 my-5" role="tablist"><button class="flex-1 border-0 bg-transparent p-3 rounded-[10px] font-bold text-mute cursor-pointer min-h-[48px] text-[13.5px]' + (!_compare ? " bg-white text-teal shadow-sm" : "") + '" onclick="PW.compare(false)" role="tab">Your routes</button><button class="flex-1 border-0 bg-transparent p-3 rounded-[10px] font-bold text-mute cursor-pointer min-h-[48px] text-[13.5px]' + (_compare ? " bg-white text-teal shadow-sm" : "") + '" onclick="PW.compare(true)" role="tab">Compare</button></div>';
     var body;
     if (_compare) {
       var rows = [
@@ -504,27 +538,27 @@
         ["Learning", ["Technical", "Adjacent skills", "Practical"]],
         ["Tradeoff", ["Study load", "Role availability", "Variable income"]],
         ["Budget fit", PATHWAYS.map(function (x) { return x.cost <= p.budget ? "Within" : "Above"; })]
-      ].map(function (r, i) {
-        return "<tr><td><b>" + r[0] + "</b></td>" + r[1].map(function (v) { return "<td>" + esc(v) + "</td>"; }).join("") + "</tr>";
+      ].map(function (r) {
+        return '<tr class="odd:bg-white even:bg-[#F8FAF8]"><td class="p-4 text-left text-mute"><b>' + r[0] + "</b></td>" + r[1].map(function (v) { return '<td class="p-4 text-center text-ink">' + esc(v) + "</td>"; }).join("") + "</tr>";
       }).join("");
-      body = '<div style="overflow-x:auto"><table class="table"><tr><th>At a glance</th><th>Plan A</th><th>Plan B</th><th>Plan C</th></tr>' + rows + "</table></div>" +
-        '<div style="display:grid;gap:8px;margin-top:14px">' + PATHWAYS.map(function (x) { return '<a class="btn btn-secondary btn-sm" href="#/pathway/' + x.id + '">Explore ' + x.label + " " + icon("arrow", 15) + "</a>"; }).join("") + "</div>";
+      body = '<div class="overflow-x-auto rounded-[20px] border border-line"><table class="w-full border-collapse bg-white text-[12.5px]"><tr><th class="bg-mint p-3.5 text-left text-mute">At a glance</th><th class="bg-mint p-3.5 text-center text-ink">Plan A</th><th class="bg-mint p-3.5 text-center text-ink">Plan B</th><th class="bg-mint p-3.5 text-center text-ink">Plan C</th></tr>' + rows + "</table></div>" +
+        '<div class="grid gap-2 mt-3.5">' + PATHWAYS.map(function (x) { return '<a class="' + BS + BSM + '" href="#/pathway/' + x.id + '">Explore ' + x.label + " " + icon("arrow", 15) + "</a>"; }).join("") + "</div>";
     } else {
-      body = '<div class="grid3">' + PATHWAYS.map(function (pw, i) {
+      body = '<div class="grid gap-4 md:grid-cols-3">' + PATHWAYS.map(function (pw, i) {
         var bg = ["#DDEFE8", "#DCE8ED", "#F4ECD9"][i];
         var fit = fitMessage(pw, p);
-        return '<a href="#/pathway/' + pw.id + '" style="text-decoration:none;color:inherit"><article class="card' + (rec === pw.id ? " hl" : "") + '">' +
-          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="display:flex;gap:9px;align-items:center"><span style="width:32px;height:32px;border-radius:11px;background:' + bg + ';display:grid;place-items:center;font-weight:800;font-size:13px">' + pw.id.toUpperCase() + '</span><span class="micro">' + esc(pw.tag) + "</span></span>" +
-          (state.activePath === pw.id ? icon("check", 20) : "") + "</div>" +
-          "<h3>" + esc(pw.title) + '</h3><p class="micro">' + esc(pw.subtitle) + "</p>" +
-          '<div class="meta-row"><span>' + icon("rupee", 15) + esc(money(pw.cost)) + '</span><span>' + icon("clock", 15) + duration(pw, p) + " months</span></div>" +
-          '<div class="fit ' + (pw.cost > p.budget ? "warn" : "ok") + '">' + esc(fit) + "</div>" +
-          (rec === pw.id ? '<div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px;font-size:12.5px;font-weight:700;color:var(--teal)">' + icon("sparkle", 14) + " " + (pw.cost > p.budget ? "Lowest-cost sample · funding gap remains" : "Suggested for your current situation") + "</div>" : "") +
+        return '<a href="#/pathway/' + pw.id + '" class="no-underline text-inherit block"><article class="' + CARD + (rec === pw.id ? " border-teal border-[1.5px]" : "") + '">' +
+          '<div class="flex justify-between items-center mb-3"><span class="flex gap-[9px] items-center"><span class="w-8 h-8 rounded-[11px] grid place-items-center font-extrabold text-[13px] text-ink" style="background:' + bg + '">' + pw.id.toUpperCase() + '</span><span class="' + MICRO + '">' + esc(pw.tag) + "</span></span>" +
+          (state.activePath === pw.id ? '<span class="text-teal">' + icon("check", 20) + "</span>" : "") + "</div>" +
+          '<h3 class="m-0 text-ink font-extrabold text-[19px]">' + esc(pw.title) + '</h3><p class="' + MICRO + ' mt-1">' + esc(pw.subtitle) + "</p>" +
+          '<div class="flex gap-[18px] items-center mt-4 font-semibold text-[13.5px] flex-wrap"><span class="inline-flex gap-1.5 items-center text-mute">' + icon("rupee", 15) + esc(money(pw.cost)) + '</span><span class="inline-flex gap-1.5 items-center text-mute">' + icon("clock", 15) + duration(pw, p) + " months</span></div>" +
+          '<div class="text-xs font-bold mt-3 ' + (pw.cost > p.budget ? "text-honey" : "text-teal") + '">' + esc(fit) + "</div>" +
+          (rec === pw.id ? '<div class="mt-3 border-t border-line pt-3 text-[12.5px] font-bold text-teal"><span class="inline-flex items-center gap-1.5">' + icon("sparkle", 14) + "<span>" + (pw.cost > p.budget ? "Lowest-cost sample · funding gap remains" : "Suggested for your current situation") + "</span></span></div>" : "") +
           "</article></a>";
       }).join("") + "</div>";
     }
-    return head + body + '<div class="cta-row" style="margin-top:22px"><a class="btn btn-secondary" href="#/what-if">' + icon("sliders", 17) + " What if my situation changes?</a></div>" +
-      '<p class="micro" style="text-align:center;margin-top:12px">Illustrative costs and timelines. Outcomes are not guaranteed.</p>';
+    return head + body + '<div class="' + CTA + ' mt-[22px]"><a class="' + BS + '" href="#/what-if">' + icon("sliders", 17) + " What if my situation changes?</a></div>" +
+      '<p class="' + MICRO + ' text-center mt-3">Illustrative costs and timelines. Outcomes are not guaranteed.</p>';
   }
 
   function vPathway(id) {
@@ -533,18 +567,18 @@
     var isActive = state.activePath === path.id;
     var miles = path.milestones.map(function (m, i) {
       var when = p.hours === 8 ? m.duration : "Stage " + (i + 1) + " of 4";
-      return '<div class="milestone"><div><div class="m-num' + (i === 0 ? " first" : "") + '">' + (i + 1) + "</div>" + (i < 3 ? '<div class="m-line"></div>' : "") + '</div><div style="padding-bottom:26px"><div class="micro" style="color:var(--teal);font-weight:700">' + esc(when) + "</div><b>" + esc(m.title) + '</b><div class="micro" style="font-size:13.5px;margin-top:6px">' + esc(m.detail) + "</div></div></div>";
+      return '<div class="grid grid-cols-[34px_1fr] gap-3.5"><div><div class="w-[30px] h-[30px] rounded-full grid place-items-center text-[13px] font-extrabold ' + (i === 0 ? "bg-teal text-white" : "bg-mint text-teal") + '">' + (i + 1) + "</div>" + (i < 3 ? '<div class="w-px bg-[#B8CFC1] mx-auto my-1.5 min-h-[26px]"></div>' : "") + '</div><div class="pb-[26px]"><div class="' + MICRO + ' text-teal font-bold">' + esc(when) + '</div><b class="text-ink">' + esc(m.title) + '</b><div class="' + MICRO + ' text-[13.5px] mt-1.5">' + esc(m.detail) + "</div></div></div>";
     }).join("");
-    return '<div class="back-row"><a class="btn btn-white btn-sm" href="#/paths">' + icon("back", 16) + " All paths</a></div>" +
-      '<div class="page-head"><div><div class="micro">Your pathway</div><h1>' + esc(path.title) + "</h1><p>" + esc(path.description) + "</p></div>" + pill(esc(path.label), {}) + "</div>" +
-      '<div class="strip">' + pill(duration(path, p) + " months", { icon: "clock" }) + pill(money(path.cost) + " estimate", { icon: "rupee" }) + "</div>" +
-      (path.cost > p.budget ? '<div style="max-width:46rem;margin-bottom:16px">' + notice("This route is " + money(path.cost - p.budget) + " above your current budget. Review the alternatives before committing.", true) + "</div>" : "") +
-      '<div class="grid2"><div><h3>Why this could work for you</h3><p style="color:var(--muted)">' + esc(path.why) + '</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' + path.skills.map(function (s) { return pill(esc(s), { white: true }); }).join("") + "</div>" +
-      '<h3 style="margin-top:26px">From here to your next chapter</h3><div style="margin-top:14px">' + miles + "</div>" +
+    return '<div class="mb-4"><a class="' + BW + BSM + '" href="#/paths">' + icon("back", 16) + " All paths</a></div>" +
+      '<div class="flex gap-3.5 items-start justify-between mb-[18px]"><div><div class="' + MICRO + '">Your pathway</div><h1 class="' + PH1 + '">' + esc(path.title) + '</h1><p class="text-mute mt-2">' + esc(path.description) + "</p></div>" + pill(esc(path.label), {}) + "</div>" +
+      '<div class="flex gap-2.5 flex-wrap my-[18px]">' + pill(duration(path, p) + " months", { icon: "clock" }) + pill(money(path.cost) + " estimate", { icon: "rupee" }) + "</div>" +
+      (path.cost > p.budget ? '<div class="max-w-[46rem] mb-4">' + notice("This route is " + money(path.cost - p.budget) + " above your current budget. Review the alternatives before committing.", true) + "</div>" : "") +
+      '<div class="grid gap-4 md:grid-cols-2"><div><h3 class="text-ink font-extrabold text-[19px] m-0">Why this could work for you</h3><p class="text-mute">' + esc(path.why) + '</p><div class="flex gap-2 flex-wrap mt-3">' + path.skills.map(function (s) { return pill(esc(s), { white: true }); }).join("") + "</div>" +
+      '<h3 class="text-ink font-extrabold text-[19px] mt-[26px] mb-3.5">From here to your next chapter</h3><div class="mt-3.5">' + miles + "</div>" +
       (p.hours !== 8 ? notice("The overall estimate is " + duration(path, p) + " months at " + p.hours + " hours a week. Individual stage dates would need a more detailed plan.") : "") + "</div>" +
-      '<div><div class="card" style="background:var(--sand);border-color:var(--sand)"><b style="color:var(--amber)">' + icon("info", 18) + ' The tradeoff</b><p style="color:var(--amber);font-size:13.5px">' + esc(path.tradeoff) + '</p></div><div class="card" style="margin-top:14px"><b>What you\u2019ll need</b><p style="color:var(--muted);font-size:14px">' + esc(path.eligibility) + '</p><a class="btn btn-secondary btn-sm" style="width:100%;margin-top:10px" href="#/explore">Find learning opportunities ' + icon("compass", 15) + "</a></div>" +
-      '<div class="card" style="margin-top:14px"><b>' + (isActive ? "This is your active path" : "Make it yours") + '</b><p class="micro">' + (isActive ? "Continue with the next small steps for this route." : "Switch your demo focus to this sample route.") + '</p><button class="btn btn-primary" style="width:100%" onclick="PW.makeActive(\'' + path.id + "')\">" + (isActive ? "See my next steps " + icon("arrow", 16) : "Make this my active path " + icon("arrow", 16)) + "</button></div>" +
-      '<p class="micro" style="margin-top:12px">Sample pathway. Costs and timelines are planning examples, not verified quotes.</p></div></div>';
+      '<div><div class="' + CARD + ' bg-sand border-sand"><b class="text-honey inline-flex items-center gap-2">' + icon("info", 18) + ' The tradeoff</b><p class="text-honey text-[13.5px] mt-2 mb-0">' + esc(path.tradeoff) + '</p></div><div class="' + CARD + ' mt-3.5"><b class="text-ink">What you\u2019ll need</b><p class="text-mute text-sm">' + esc(path.eligibility) + '</p><a class="' + BS + BSM + ' w-full mt-2.5" href="#/explore">Find learning opportunities ' + icon("compass", 15) + "</a></div>" +
+      '<div class="' + CARD + ' mt-3.5"><b class="text-ink">' + (isActive ? "This is your active path" : "Make it yours") + '</b><p class="' + MICRO + ' mt-1">' + (isActive ? "Continue with the next small steps for this route." : "Switch your demo focus to this sample route.") + '</p><button class="' + BP + ' w-full mt-2" onclick="PW.makeActive(\'' + path.id + "')\">" + (isActive ? "See my next steps " + icon("arrow", 16) : "Make this my active path " + icon("arrow", 16)) + "</button></div>" +
+      '<p class="' + MICRO + ' mt-3">Sample pathway. Costs and timelines are planning examples, not verified quotes.</p></div></div>';
   }
 
   function vWhatIf() {
@@ -555,22 +589,22 @@
     var sugg = pathById(recommend(d));
     var changed = JSON.stringify(d) !== JSON.stringify(state.profile);
     if (!w.preview) {
-      return '<div class="back-row"><a class="btn btn-white btn-sm" href="#/home">' + icon("back", 16) + " Back</a></div>" +
-        '<div class="page-head"><div><h1>Life changes.<br>Your plan can, too.</h1><p>Try a different situation. Nothing changes until you choose to apply it.</p></div><span class="icon-btn" style="background:var(--mint);border-color:var(--mint);color:var(--teal)">' + icon("sliders", 22) + "</span></div>" +
-        '<div class="grid2"><div><h3>What\u2019s on your mind?</h3><div style="display:grid;gap:9px;margin-top:12px">' +
+      return '<div class="mb-4"><a class="' + BW + BSM + '" href="#/home">' + icon("back", 16) + " Back</a></div>" +
+        '<div class="flex gap-3.5 items-start justify-between mb-[18px]"><div><h1 class="' + PH1 + '">Life changes.<br>Your plan can, too.</h1><p class="text-mute mt-2">Try a different situation. Nothing changes until you choose to apply it.</p></div><span class="w-12 h-12 rounded-2xl inline-grid place-items-center shrink-0 bg-mint border border-mint text-teal">' + icon("sliders", 22) + "</span></div>" +
+        '<div class="grid gap-4 md:grid-cols-2"><div><h3 class="text-ink font-extrabold text-[19px] m-0">What\u2019s on your mind?</h3><div class="grid gap-[9px] mt-3">' +
         choiceBtn("My learning budget decreased", "rupee", d.budget === 20000, "PW.whatifSet({budget:20000})") +
         choiceBtn("I have less time to study", "clock", d.hours === 4, "PW.whatifSet({hours:4})") +
         choiceBtn("I need to start earning sooner", "briefcase", !!d.earnSoon, "PW.whatifToggleEarn()") +
         choiceBtn("I need to stay close to home", "pin", !d.relocate, "PW.whatifSet({relocate:false})") +
-        '</div><h3 style="margin-top:24px">Location flexibility</h3><div style="display:grid;gap:9px;margin-top:12px">' +
+        '</div><h3 class="text-ink font-extrabold text-[19px] mt-6 mb-0">Location flexibility</h3><div class="grid gap-[9px] mt-3">' +
         choiceBtn("Stay near home", null, !d.relocate, "PW.whatifSet({relocate:false})") +
         choiceBtn("I\u2019m open to relocating", null, !!d.relocate, "PW.whatifSet({relocate:true})") +
-        '</div><div style="margin-top:14px">' + notice("These sample routes already support remote learning. Location changes update your preferences without inventing new opportunities.") + "</div></div>" +
-        '<div><div class="card"><div class="micro">Total learning budget</div><div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 16px"><button class="icon-btn plain" aria-label="Decrease budget by 5,000 rupees" onclick="PW.whatifBudget(-5000)">' + icon("minus", 18) + '</button><b style="font-size:22px">' + esc(money(d.budget)) + '</b><button class="icon-btn plain" aria-label="Increase budget by 5,000 rupees" onclick="PW.whatifBudget(5000)">' + icon("plus", 18) + "</button></div>" +
-        '<div style="height:1px;background:var(--line)"></div><div class="micro" style="margin-top:16px">Time for learning each week</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><button class="icon-btn plain" aria-label="Decrease weekly study hours" onclick="PW.whatifHours(-1)">' + icon("minus", 18) + '</button><b style="font-size:22px">' + esc(String(d.hours)) + ' hours</b><button class="icon-btn plain" aria-label="Increase weekly study hours" onclick="PW.whatifHours(1)">' + icon("plus", 18) + "</button></div></div>" +
-        '<div style="display:grid;gap:10px;margin-top:16px"><button class="btn btn-primary" ' + (changed ? "" : "disabled") + ' onclick="PW.whatifPreview()">' + icon("sparkle", 17) + " Preview my new plan</button>" +
-        '<button class="btn btn-ghost" onclick="PW.discard()">Discard changes</button></div>' +
-        (!changed ? '<p class="micro" style="text-align:center">Change a value above to enable the preview.</p>' : "") + "</div></div>";
+        '</div><div class="mt-3.5">' + notice("These sample routes already support remote learning. Location changes update your preferences without inventing new opportunities.") + "</div></div>" +
+        '<div><div class="' + CARD + '"><div class="' + MICRO + '">Total learning budget</div><div class="flex justify-between items-center my-2 mb-4"><button class="w-12 h-12 rounded-2xl inline-grid place-items-center cursor-pointer shrink-0 bg-faded border border-transparent text-ink hover:bg-mint" aria-label="Decrease budget by 5,000 rupees" onclick="PW.whatifBudget(-5000)">' + icon("minus", 18) + '</button><b class="text-[22px] text-ink">' + esc(money(d.budget)) + '</b><button class="w-12 h-12 rounded-2xl inline-grid place-items-center cursor-pointer shrink-0 bg-faded border border-transparent text-ink hover:bg-mint" aria-label="Increase budget by 5,000 rupees" onclick="PW.whatifBudget(5000)">' + icon("plus", 18) + "</button></div>" +
+        '<div class="h-px bg-line"></div><div class="' + MICRO + ' mt-4">Time for learning each week</div><div class="flex justify-between items-center mt-2"><button class="w-12 h-12 rounded-2xl inline-grid place-items-center cursor-pointer shrink-0 bg-faded border border-transparent text-ink hover:bg-mint" aria-label="Decrease weekly study hours" onclick="PW.whatifHours(-1)">' + icon("minus", 18) + '</button><b class="text-[22px] text-ink">' + esc(String(d.hours)) + ' hours</b><button class="w-12 h-12 rounded-2xl inline-grid place-items-center cursor-pointer shrink-0 bg-faded border border-transparent text-ink hover:bg-mint" aria-label="Increase weekly study hours" onclick="PW.whatifHours(1)">' + icon("plus", 18) + "</button></div></div>" +
+        '<div class="grid gap-2.5 mt-4"><button class="' + BP + '" ' + (changed ? "" : "disabled") + ' onclick="PW.whatifPreview()">' + icon("sparkle", 17) + " Preview my new plan</button>" +
+        '<button class="' + BG + '" onclick="PW.discard()">Discard changes</button></div>' +
+        (!changed ? '<p class="' + MICRO + ' text-center">Change a value above to enable the preview.</p>' : "") + "</div></div>";
     }
     var diffs = [
       ["Learning budget", money(state.profile.budget), money(d.budget)],
@@ -578,21 +612,21 @@
       ["Location", state.profile.relocate ? "Open to moving" : "Near home", d.relocate ? "Open to moving" : "Near home"],
       ["Income priority", state.profile.earnSoon ? "Earlier earning" : "Gradual transition", d.earnSoon ? "Earlier earning" : "Gradual transition"]
     ].filter(function (r) { return r[1] !== r[2]; }).map(function (r) {
-      return '<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="micro">' + r[0] + '</div><div style="display:flex;gap:10px;align-items:center;margin-top:4px"><span>' + esc(r[1]) + "</span>" + icon("arrow", 15) + '<b style="color:var(--teal)">' + esc(r[2]) + "</b></div></div>";
-    }).join("") || '<p class="micro">No differences — your situation matches the current plan.</p>';
-    return '<div class="back-row"><button class="btn btn-white btn-sm" onclick="PW.whatifBack()">' + icon("back", 16) + " Adjust scenario</button></div>" +
-      '<h1 style="font-size:32px;letter-spacing:-1px;margin:0">A little adjustment. A way forward.</h1>' +
-      '<div style="max-width:46rem;margin:14px 0">' + notice(esc(recommendationReason(d)), sugg.cost > d.budget) + "</div>" +
-      '<div class="grid2"><div class="card"><div class="micro">Your current route</div><b>' + esc(orig.label) + " · " + esc(orig.title) + '</b><div class="micro" style="margin-top:6px">' + esc(money(orig.cost)) + " · " + duration(orig, state.profile) + " months</div>" +
-      '<div style="text-align:center;margin:14px 0;color:var(--teal)">' + icon("down", 20) + "</div>" +
+      return '<div class="py-3 border-b border-line"><div class="' + MICRO + '">' + r[0] + '</div><div class="flex gap-2.5 items-center mt-1 text-ink"><span>' + esc(r[1]) + "</span>" + icon("arrow", 15) + '<b class="text-teal text-[13px]">' + esc(r[2]) + "</b></div></div>";
+    }).join("") || '<p class="' + MICRO + '">No differences — your situation matches the current plan.</p>';
+    return '<div class="mb-4"><button class="' + BW + BSM + '" onclick="PW.whatifBack()">' + icon("back", 16) + " Adjust scenario</button></div>" +
+      '<h1 class="text-[32px] tracking-[-1px] m-0 font-extrabold">A little adjustment. A way forward.</h1>' +
+      '<div class="max-w-[46rem] my-3.5">' + notice(esc(recommendationReason(d)), sugg.cost > d.budget) + "</div>" +
+      '<div class="grid gap-4 md:grid-cols-2"><div class="' + CARD + '"><div class="' + MICRO + '">Your current route</div><b class="text-ink">' + esc(orig.label) + " · " + esc(orig.title) + '</b><div class="' + MICRO + ' mt-1.5">' + esc(money(orig.cost)) + " · " + duration(orig, state.profile) + " months</div>" +
+      '<div class="text-center my-3.5 text-teal">' + icon("down", 20) + "</div>" +
       pill(orig.id === sugg.id ? "Same route, updated situation" : "Your revised route", { icon: "sparkle" }) +
-      "<h3 style='font-size:22px;margin:10px 0 4px'>" + esc(sugg.title) + '</h3><div style="display:flex;gap:14px"><b style="color:var(--teal)">' + esc(money(sugg.cost)) + "</b><span>" + duration(sugg, d) + " months</span></div></div>" +
-      '<div><h3>What changes for you</h3>' + diffs +
-      '<div style="display:grid;gap:10px;margin-top:18px"><button class="btn btn-primary" onclick="PW.whatifApply()">' + icon("check", 17) + ' Apply these changes</button><button class="btn btn-ghost" onclick="PW.discard()">Keep my current plan</button><button class="btn btn-white btn-sm" onclick="PW.whatifBack()">Adjust this scenario</button></div>' +
-      '<p class="micro" style="margin-top:12px">This is a simulated recalculation using sample routes, not a prediction of career outcomes.</p></div></div>';
+      '<h3 class="text-[22px] my-2.5 mb-1 text-ink font-extrabold">' + esc(sugg.title) + '</h3><div class="flex gap-3.5"><b class="text-teal">' + esc(money(sugg.cost)) + "</b><span class='text-ink'>" + duration(sugg, d) + " months</span></div></div>" +
+      '<div><h3 class="text-ink font-extrabold text-[19px] m-0">What changes for you</h3>' + diffs +
+      '<div class="grid gap-2.5 mt-[18px]"><button class="' + BP + '" onclick="PW.whatifApply()">' + icon("check", 17) + ' Apply these changes</button><button class="' + BG + '" onclick="PW.discard()">Keep my current plan</button><button class="' + BW + BSM + '" onclick="PW.whatifBack()">Adjust this scenario</button></div>' +
+      '<p class="' + MICRO + ' mt-3">This is a simulated recalculation using sample routes, not a prediction of career outcomes.</p></div></div>';
   }
   function choiceBtn(title, icn, sel, fn) {
-    return '<button class="choice' + (sel ? " sel" : "") + '" onclick="' + fn + '">' + (icn ? icon(icn, 19) : "") + '<span style="flex:1">' + esc(title) + "</span>" + (sel ? icon("check", 17) : "") + "</button>";
+    return '<button class="choice w-full text-left flex gap-2.5 items-center border rounded-[14px] px-4 py-3.5 min-h-[52px] text-[13.5px] font-semibold cursor-pointer ' + (sel ? "bg-mint border-teal text-teal" : "bg-white border-line text-ink hover:border-teal") + '" onclick="' + fn + '">' + (icn ? icon(icn, 19) : "") + '<span class="flex-1">' + esc(title) + "</span>" + (sel ? icon("check", 17) : "") + "</button>";
   }
 
   function filteredOpps() {
@@ -609,46 +643,46 @@
     var col = o.kind === "Course" ? "#456777" : o.kind === "Job" ? "#8B601B" : "#6C5A87";
     var icn = o.kind === "Course" ? "book" : o.kind === "Job" ? "briefcase" : "graduation";
     var sv = state.saved.indexOf(o.id) >= 0;
-    return '<article class="card"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span class="opp-kind" style="background:' + bg + ";color:" + col + '">' + icon(icn, 23) + "</span>" + pill(esc(o.kind), { white: true }) + '<span style="flex:1"></span><button class="icon-btn' + (sv ? " on" : "") + '" aria-label="' + (sv ? "Unsave " : "Save ") + esc(o.title) + '" onclick="PW.toggleSave(\'' + o.id + "')\">" + icon(sv ? "bookmarkFill" : "bookmark", 20) + "</button></div>" +
-      '<a href="#/opportunity/' + o.id + '" style="text-decoration:none;color:inherit"><h3 style="font-size:18px">' + esc(o.title) + '</h3><p class="micro">' + esc(o.provider) + "</p>" +
-      '<div class="micro" style="margin-top:8px">' + icon("pin", 13) + " " + esc(o.location) + "</div>" +
-      '<div style="display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:14px;padding-top:12px;font-size:13px"><b style="color:var(--teal)">' + esc(o.cost) + "</b><span class='micro'>" + esc(o.time) + "</span>" + icon("external", 16) + "</div></a></article>";
+    return '<article class="' + CARD + '"><div class="flex gap-2.5 items-center mb-2.5"><span class="w-[46px] h-[46px] rounded-[14px] grid place-items-center shrink-0" style="background:' + bg + ";color:" + col + '">' + icon(icn, 23) + "</span>" + pill(esc(o.kind), { white: true }) + '<span class="flex-1"></span><button class="w-12 h-12 rounded-2xl inline-grid place-items-center cursor-pointer shrink-0 border ' + (sv ? "bg-mint border-mint text-teal" : "bg-white border-line text-teal hover:bg-faded") + '" aria-label="' + (sv ? "Unsave " : "Save ") + esc(o.title) + '" onclick="PW.toggleSave(\'' + o.id + "')\">" + icon(sv ? "bookmarkFill" : "bookmark", 20) + "</button></div>" +
+      '<a href="#/opportunity/' + o.id + '" class="no-underline text-inherit block"><h3 class="text-[18px] m-0 text-ink font-extrabold">' + esc(o.title) + '</h3><p class="' + MICRO + ' mt-1">' + esc(o.provider) + "</p>" +
+      '<div class="' + MICRO + ' mt-2 inline-flex items-center gap-1">' + icon("pin", 13) + " " + esc(o.location) + "</div>" +
+      '<div class="flex justify-between items-center border-t border-line mt-3.5 pt-3 text-[13px]"><b class="text-teal">' + esc(o.cost) + "</b><span class='" + MICRO + "'>" + esc(o.time) + "</span>" + '<span class="text-teal">' + icon("external", 16) + "</span></div></a></article>";
   }
   function vExplore() {
     var list = filteredOpps();
     var body = !list.length
-      ? '<div class="card" style="text-align:center;padding:44px 20px"><div style="color:var(--teal)">' + icon("compass", 40) + "</div><h3>" + (_exp.savedOnly ? "A little space for possibilities" : "No examples found") + "</h3><p class='micro'>" + (_exp.savedOnly ? "Save an opportunity using its bookmark to find it here." : "Try \u201CExcel\u201D, \u201CSQL\u201D, or a different category.") + "</p></div>"
-      : '<div class="opps">' + list.map(oppCard).join("") + "</div>";
-    return '<div class="page-head"><div><h1>Open a new door</h1><p>Small opportunities. Real possibilities.</p></div>' +
-      '<button class="icon-btn' + (_exp.savedOnly ? " on" : "") + '" aria-label="Show saved opportunities" onclick="PW.toggleSavedOnly()">' + icon(_exp.savedOnly ? "bookmarkFill" : "bookmark", 20) + "</button></div>" +
-      '<div class="card" style="background:#E2EADF;border-color:#E2EADF"><div style="display:flex;gap:14px;align-items:center"><span style="flex:1"><b style="font-size:21px">Your experience<br>opens doors.</b><br><span class="micro">Find a starting point that meets you where you are.</span></span><span style="color:var(--teal)">' + icon("compass", 52) + "</span></div></div>" +
-      '<div style="height:16px"></div><div class="search"><span style="color:var(--muted)">' + icon("compass", 19) + '</span><input aria-label="Search opportunities" placeholder="Skills, courses, new possibilities\u2026" value="' + esc(_exp.q) + '" oninput="PW.setQuery(this.value)" /><button class="icon-btn plain" style="width:36px;height:36px" aria-label="Clear search" onclick="PW.clearQuery()">' + icon("close", 16) + "</button></div>" +
-      '<div class="filters" role="group" aria-label="Filter by kind">' + ["All", "Course", "Job", "Programme"].map(function (f) {
+      ? '<div class="' + CARD + ' text-center px-5 py-11"><div class="text-teal flex justify-center">' + icon("compass", 40) + "</div><h3 class='text-ink font-extrabold text-[19px]'>" + (_exp.savedOnly ? "A little space for possibilities" : "No examples found") + "</h3><p class='" + MICRO + "'>" + (_exp.savedOnly ? "Save an opportunity using its bookmark to find it here." : "Try \u201CExcel\u201D, \u201CSQL\u201D, or a different category.") + "</p></div>"
+      : '<div class="grid gap-3.5 md:grid-cols-2">' + list.map(oppCard).join("") + "</div>";
+    return '<div class="flex gap-3.5 items-start justify-between mb-[18px]"><div><h1 class="' + PH1 + '">Open a new door</h1><p class="text-mute mt-2">Small opportunities. Real possibilities.</p></div>' +
+      '<button class="w-12 h-12 rounded-2xl inline-grid place-items-center cursor-pointer shrink-0 border ' + (_exp.savedOnly ? "bg-mint border-mint text-teal" : "bg-white border-line text-teal hover:bg-faded") + '" aria-label="Show saved opportunities" onclick="PW.toggleSavedOnly()">' + icon(_exp.savedOnly ? "bookmarkFill" : "bookmark", 20) + "</button></div>" +
+      '<div class="' + CARD + ' bg-[#E2EADF] border-[#E2EADF]"><div class="flex gap-3.5 items-center"><span class="flex-1"><b class="text-[21px] text-ink font-extrabold">Your experience<br>opens doors.</b><br><span class="' + MICRO + '">Find a starting point that meets you where you are.</span></span><span class="text-teal">' + icon("compass", 52) + "</span></div></div>" +
+      '<div class="h-4"></div><div class="flex gap-2.5 items-center bg-white border border-line rounded-[15px] px-3.5"><span class="text-mute">' + icon("compass", 19) + '</span><input aria-label="Search opportunities" placeholder="Skills, courses, new possibilities\u2026" value="' + esc(_exp.q) + '" oninput="PW.setQuery(this.value)" class="border-0 outline-none flex-1 min-h-[51px] bg-transparent text-[13.5px] text-ink" /><button class="w-9 h-9 rounded-2xl inline-grid place-items-center cursor-pointer shrink-0 text-ink hover:bg-faded" aria-label="Clear search" onclick="PW.clearQuery()">' + icon("close", 16) + "</button></div>" +
+      '<div class="flex gap-2 flex-wrap my-4" role="group" aria-label="Filter by kind">' + ["All", "Course", "Job", "Programme"].map(function (f) {
         var label = f === "All" ? "For you" : f === "Course" ? "Courses" : f === "Job" ? "Jobs" : "Programmes";
-        return '<button class="' + (_exp.filter === f ? "on" : "") + '" onclick="PW.setFilter(\'' + f + "')\">" + label + "</button>";
+        return '<button class="border rounded-full px-[18px] min-h-[48px] font-bold text-[13px] cursor-pointer ' + (_exp.filter === f ? "bg-teal border-teal text-white" : "bg-white border-line text-mute hover:border-teal") + '" onclick="PW.setFilter(\'' + f + "')\">" + label + "</button>";
       }).join("") + "</div>" +
-      '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><b>' + (_exp.savedOnly ? "Saved for later" : "A place to begin") + '</b><span class="micro">' + list.length + " " + (list.length === 1 ? "example" : "examples") + "</span></div>" +
+      '<div class="flex justify-between mb-3"><b class="text-ink">' + (_exp.savedOnly ? "Saved for later" : "A place to begin") + '</b><span class="' + MICRO + '">' + list.length + " " + (list.length === 1 ? "example" : "examples") + "</span></div>" +
       '<div id="opp-list">' + body + "</div>" +
-      '<div style="margin-top:18px">' + notice("Illustrative opportunities only. Organisations, fees, and openings are sample content, not verified listings.") + "</div>";
+      '<div class="mt-[18px]">' + notice("Illustrative opportunities only. Organisations, fees, and openings are sample content, not verified listings.") + "</div>";
   }
 
   function vOpportunity(id) {
     var o = oppById(id);
-    if (!o) return '<div class="back-row"><a class="btn btn-white btn-sm" href="#/explore">' + icon("back", 16) + " Explore</a></div><div class='card' style='text-align:center;padding:40px'><h2>This example isn\u2019t available</h2><p class='micro'>Explore the other sample opportunities.</p><a class='btn btn-primary' href='#/explore'>Explore opportunities</a></div>";
+    if (!o) return '<div class="mb-4"><a class="' + BW + BSM + '" href="#/explore">' + icon("back", 16) + " Explore</a></div><div class='" + CARD + " text-center px-6 py-12'><h2 class='text-ink font-extrabold'>This example isn\u2019t available</h2><p class='" + MICRO + "'>Explore the other sample opportunities.</p><a class='" + BP + "' href='#/explore'>Explore opportunities</a></div>";
     var sv = state.saved.indexOf(o.id) >= 0;
     var why = o.kind === "Course" ? "Build a practical skill before committing to a bigger career change. Self-paced study can fit around your current job." : o.kind === "Job" ? "Your retail operations experience is relevant to this kind of work. Use this example to understand skills to develop and questions to ask." : "Support and mentoring could make a transition more manageable. Explore programmes that fit your learning preferences and schedule.";
     var bg = o.kind === "Course" ? "#DCE8ED" : o.kind === "Job" ? "#F4ECD9" : "#EAE6F1";
     var icn = o.kind === "Course" ? "book" : o.kind === "Job" ? "briefcase" : "graduation";
-    return '<div class="back-row"><a class="btn btn-white btn-sm" href="#/explore">' + icon("back", 16) + " Explore</a></div>" +
-      '<div class="page-head"><div><div class="micro">A possible next step</div><h1>' + esc(o.title) + "</h1><p>" + esc(o.provider) + " · " + esc(o.location) + "</p></div>" + pill(esc(o.kind) + " example", { white: true }) + "</div>" +
-      '<div class="grid2"><div><div style="display:flex;gap:10px;margin-bottom:14px"><span class="opp-kind" style="background:' + bg + ";width:60px;height:60px\">" + icon(icn, 30) + "</span></div>" +
-      '<div class="strip">' + pill(esc(o.cost), { icon: "rupee" }) + pill(esc(o.time), { icon: "clock" }) + "</div>" +
+    return '<div class="mb-4"><a class="' + BW + BSM + '" href="#/explore">' + icon("back", 16) + " Explore</a></div>" +
+      '<div class="flex gap-3.5 items-start justify-between mb-[18px]"><div><div class="' + MICRO + '">A possible next step</div><h1 class="' + PH1 + '">' + esc(o.title) + '</h1><p class="text-mute mt-2">' + esc(o.provider) + " · " + esc(o.location) + "</p></div>" + pill(esc(o.kind) + " example", { white: true }) + "</div>" +
+      '<div class="grid gap-4 md:grid-cols-2"><div><div class="flex gap-2.5 mb-3.5"><span class="w-[60px] h-[60px] rounded-[19px] grid place-items-center text-teal" style="background:' + bg + '">' + icon(icn, 30) + "</span></div>" +
+      '<div class="flex gap-2.5 flex-wrap my-[18px]">' + pill(esc(o.cost), { icon: "rupee" }) + pill(esc(o.time), { icon: "clock" }) + "</div>" +
       notice("This is an illustrative listing. There\u2019s no live opening, application, or enrollment connected to this prototype.") +
-      '<h3 style="margin-top:22px">A closer look</h3><p style="color:var(--muted)">' + esc(o.description) + "</p>" +
-      '<h3 style="margin-top:22px">Why explore this?</h3><p style="color:var(--muted)">' + esc(why) + '</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">' + o.skills.map(function (s) { return pill(esc(s), { white: true }); }).join("") + "</div></div>" +
-      '<div><div class="card"><b>Readiness &amp; support</b><p style="color:var(--muted);font-size:14px">' + esc(o.requirements) + "</p></div>" +
-      '<div class="card" style="margin-top:14px"><b>Before you take the next step</b>' + ["Confirm details with the official provider.", "Check eligibility, costs, and any deadlines.", "Ask about the support and flexibility you need."].map(function (t) { return '<div style="display:flex;gap:10px;padding:8px 0;font-size:13.5px;color:var(--muted)">' + icon("check", 16) + "<span>" + t + "</span></div>"; }).join("") + '<p class="micro" style="margin-top:10px">Source status: not verified · sample data</p></div>' +
-      '<button class="btn ' + (sv ? "btn-secondary" : "btn-primary") + '" style="width:100%;margin-top:14px" onclick="PW.toggleSave(\'' + o.id + "')\">" + icon("bookmark", 17) + " " + (sv ? "Saved · remove from saved" : "Save for later") + "</button></div></div>";
+      '<h3 class="text-ink font-extrabold text-[19px] mt-[22px] mb-2">A closer look</h3><p class="text-mute">' + esc(o.description) + "</p>" +
+      '<h3 class="text-ink font-extrabold text-[19px] mt-[22px] mb-2">Why explore this?</h3><p class="text-mute">' + esc(why) + '</p><div class="flex gap-2 flex-wrap mt-2.5">' + o.skills.map(function (s) { return pill(esc(s), { white: true }); }).join("") + "</div></div>" +
+      '<div><div class="' + CARD + '"><b class="text-ink">Readiness &amp; support</b><p class="text-mute text-sm">' + esc(o.requirements) + "</p></div>" +
+      '<div class="' + CARD + ' mt-3.5"><b class="text-ink">Before you take the next step</b>' + ["Confirm details with the official provider.", "Check eligibility, costs, and any deadlines.", "Ask about the support and flexibility you need."].map(function (t) { return '<div class="flex gap-2.5 p-2 px-0 text-[13.5px] text-mute"><span class="text-teal">' + icon("check", 16) + "</span><span>" + t + "</span></div>"; }).join("") + '<p class="' + MICRO + ' mt-2.5">Source status: not verified · sample data</p></div>' +
+      '<button class="' + (sv ? BS : BP) + ' w-full mt-3.5" onclick="PW.toggleSave(\'' + o.id + "')\">" + icon("bookmark", 17) + " " + (sv ? "Saved · remove from saved" : "Save for later") + "</button></div></div>";
   }
 
   function vNextSteps() {
@@ -658,22 +692,22 @@
       var done = state.completed.indexOf(t.id) >= 0;
       var open = _expanded === t.id;
       var extra = i === 2 ? TASK_EXTRA[i] + " Your current plan allows " + state.profile.hours + " study hours each week." : TASK_EXTRA[i];
-      return '<div class="task' + (open ? " open" : "") + '"><div style="display:flex;gap:10px;align-items:flex-start">' +
-        '<button class="check' + (done ? " done" : "") + '" role="checkbox" aria-checked="' + done + '" aria-label="Mark ' + esc(t.title) + " " + (done ? "incomplete" : "complete") + '" onclick="PW.toggleTask(\'' + t.id + "')\">" + (done ? icon("check", 15) : "") + "</button>" +
-        '<button class="choice" style="flex:1;border:0;padding:0;min-height:0" onclick="PW.expandTask(\'' + t.id + '\')"><span style="flex:1;text-align:left"><b style="' + (done ? "color:var(--muted);text-decoration:line-through" : "") + '">' + esc(t.title) + '</b><br><span class="micro">' + icon("clock", 11) + " " + esc(t.time) + "</span></span></button>" +
-        icon(open ? "down" : "chevron", 17) + "</div>" +
-        (open ? '<div style="border-top:1px solid var(--line);margin-top:12px;padding-top:14px;display:grid;gap:12px"><p style="color:var(--muted);font-size:13.5px;margin:0">' + esc(t.detail) + '</p><p class="micro" style="font-size:13px">' + esc(extra) + "</p>" +
-        (i === 1 ? '<a class="btn btn-secondary btn-sm" href="#/explore">Explore sample courses ' + icon("book", 15) + "</a>" : "") +
-        '<button class="btn ' + (done ? "btn-secondary" : "btn-primary") + '" onclick="PW.toggleTask(\'' + t.id + "')\">" + (done ? "Mark as incomplete" : "Mark this step complete") + "</button></div>" : "") + "</div>";
+      return '<div class="border bg-white rounded-[20px] p-[18px] mb-3 ' + (open ? "border-teal" : "border-line") + '"><div class="flex gap-2.5 items-start">' +
+        '<button class="w-[26px] h-[26px] rounded-[9px] border-[1.5px] grid place-items-center cursor-pointer shrink-0 ' + (done ? "bg-teal border-teal text-white" : "bg-transparent border-[#A9BEB0]") + '" role="checkbox" aria-checked="' + done + '" aria-label="Mark ' + esc(t.title) + " " + (done ? "incomplete" : "complete") + '" onclick="PW.toggleTask(\'' + t.id + "')\">" + (done ? icon("check", 15) : "") + "</button>" +
+        '<button class="choice flex-1 text-left bg-transparent border-0 p-0 cursor-pointer" onclick="PW.expandTask(\'' + t.id + '\')"><span class="flex-1 text-left"><b class="' + (done ? "text-mute line-through" : "text-ink") + '">' + esc(t.title) + '</b><br><span class="' + MICRO + ' inline-flex items-center gap-1">' + icon("clock", 11) + " " + esc(t.time) + "</span></span></button>" +
+        '<span class="text-mute">' + icon(open ? "down" : "chevron", 17) + "</span></div>" +
+        (open ? '<div class="border-t border-line mt-3 pt-3.5 grid gap-3"><p class="text-mute text-[13.5px] m-0">' + esc(t.detail) + '</p><p class="' + MICRO + ' text-[13px]">' + esc(extra) + "</p>" +
+        (i === 1 ? '<a class="' + BS + BSM + '" href="#/explore">Explore sample courses ' + icon("book", 15) + "</a>" : "") +
+        '<button class="' + (done ? BS : BP) + '" onclick="PW.toggleTask(\'' + t.id + "')\">" + (done ? "Mark as incomplete" : "Mark this step complete") + "</button></div>" : "") + "</div>";
     }).join("");
-    return '<div class="back-row"><a class="btn btn-white btn-sm" href="#/home">' + icon("back", 16) + " Home</a></div>" +
-      '<div class="micro">One step at a time</div><h1 style="font-size:34px;letter-spacing:-1px;margin:4px 0 8px">Small steps.<br>A different tomorrow.</h1>' +
-      '<p style="color:var(--muted)">You don\u2019t need the whole journey figured out. Start with what\u2019s in front of you.</p>' +
-      '<div class="card" style="background:var(--mint);border-color:var(--mint);margin:18px 0"><div style="display:flex;justify-content:space-between"><b style="color:var(--teal)">Your first four steps</b>' + pill(state.completed.length + " of 4", { white: true }) + '</div><div class="progress" style="margin:14px 0">' + TASKS.map(function (t) { return '<i class="' + (state.completed.indexOf(t.id) >= 0 ? "done" : "") + '"></i>'; }).join("") + "</div>" +
-      '<p style="color:var(--teal);font-size:13.5px;margin:0">' + (state.completed.length === 4 ? "A strong start. Take a moment to recognise it." : "A little progress is still progress.") + "</p></div>" +
+    return '<div class="mb-4"><a class="' + BW + BSM + '" href="#/home">' + icon("back", 16) + " Home</a></div>" +
+      '<div class="' + MICRO + '">One step at a time</div><h1 class="text-[34px] tracking-[-1px] my-1 mb-2 font-extrabold">Small steps.<br>A different tomorrow.</h1>' +
+      '<p class="text-mute">You don\u2019t need the whole journey figured out. Start with what\u2019s in front of you.</p>' +
+      '<div class="' + CARD + ' bg-mint border-mint my-[18px]"><div class="flex justify-between items-center"><b class="text-teal">Your first four steps</b>' + pill(state.completed.length + " of 4", { white: true }) + '</div><div class="flex gap-1.5 my-3.5">' + TASKS.map(function (t) { return '<i class="flex-1 h-[7px] rounded-full ' + (state.completed.indexOf(t.id) >= 0 ? "bg-teal" : "bg-[#BCD5C6]") + '"></i>'; }).join("") + "</div>" +
+      '<p class="text-teal text-[13.5px] m-0">' + (state.completed.length === 4 ? "A strong start. Take a moment to recognise it." : "A little progress is still progress.") + "</p></div>" +
       pill(path.label + " · " + path.title, { icon: "path", white: true }) +
-      '<h3 style="margin:20px 0 12px">Make a little room this week</h3>' + cards +
-      (state.completed.length === 4 ? '<div style="margin-top:16px">' + notice("Your foundation is taking shape. Explore the sample opportunities or revisit your pathway when you\u2019re ready.") + '<a class="btn btn-primary" style="width:100%;margin-top:12px" href="#/explore">Explore what\u2019s next ' + icon("arrow", 16) + "</a></div>" : "");
+      '<h3 class="text-ink font-extrabold text-[19px] my-5 mb-3">Make a little room this week</h3>' + cards +
+      (state.completed.length === 4 ? '<div class="mt-4">' + notice("Your foundation is taking shape. Explore the sample opportunities or revisit your pathway when you\u2019re ready.") + '<a class="' + BP + ' w-full mt-3" href="#/explore">Explore what\u2019s next ' + icon("arrow", 16) + "</a></div>" : "");
   }
 
   function vProfile() {
@@ -684,22 +718,22 @@
       ["pin", "Location", p.relocate ? "Open to relocating" : "Stay near home"],
       ["briefcase", "Income", p.earnSoon ? "Explore earlier earning" : "Keep earning while learning"]
     ].map(function (r) {
-      return '<div style="display:flex;gap:12px;align-items:center"><span style="background:#fff;padding:11px;border-radius:13px;color:var(--teal)">' + icon(r[0], 19) + '</span><span style="flex:1"><span class="micro">' + r[1] + '</span><br><b style="font-size:13.5px">' + esc(r[2]) + "</b></span></div>";
-    }).join('<div style="height:14px"></div>');
-    return '<div class="page-head"><div><h1>The person behind the plan</h1><p>Your story matters. Every part of it.</p></div></div>' +
-      '<div class="grid2"><div><div class="card"><div style="display:flex;gap:16px;align-items:center"><span style="width:68px;height:68px;border-radius:23px;background:#E9DFCE;display:grid;place-items:center;font-weight:800;font-size:26px;color:#756044">P</span><span><b style="font-size:22px">' + esc(p.name) + '</b><br><span class="micro">' + esc(p.role) + "<br>" + icon("pin", 12) + " " + esc(p.location) + "</span></span></div>" +
-      '<div style="margin-top:14px">' + pill("A new chapter, on your terms", { icon: "sparkle" }) + "</div></div>" +
-      '<h3 style="margin:22px 0 10px">Where you want to go</h3><div class="card" style="background:var(--deep);border-color:var(--deep)"><div class="micro" style="color:#C1D3C9">Your career goal</div><div style="color:#fff;font-size:22px;font-weight:800">' + esc(p.goal) + '</div><div class="micro" style="color:#C1D3C9">Build on your experience. Keep moving forward.</div></div>' +
-      '<h3 style="margin:22px 0 10px">What you bring</h3><div style="display:flex;gap:8px;flex-wrap:wrap">' + (p.strengths.length ? p.strengths.map(function (s) { return pill(esc(s), { white: true }); }).join("") : "<span class='micro'>Add strengths whenever you\u2019re ready.</span>") + "</div></div>" +
-      '<div><h3 style="margin-top:0">Your real-life priorities</h3><div class="card">' + rows + "</div>" +
-      '<h3 style="margin:22px 0 6px">How you learn best</h3><p class="micro">Support that helps you thrive. Always your choice to share.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">' + (p.support.length ? p.support.map(function (s) { return pill(esc(s), { icon: "heart" }); }).join("") : "<span class='micro'>No support preferences shared.</span>") + "</div>" +
-      '<div style="display:grid;gap:10px;margin-top:22px"><a class="btn btn-secondary" href="#/edit-profile">' + icon("note", 17) + " Edit my profile</a></div>" +
-      '<div style="margin-top:14px">' + notice("This is Priya\u2019s sample profile. Changes stay in this browser demo until you reset.") + '</div><button class="btn btn-ghost" style="margin-top:8px" onclick="PW.askReset()">' + icon("reset", 17) + " Reset demo</button></div></div>" +
+      return '<div class="flex gap-3 items-center"><span class="bg-white p-[11px] rounded-[13px] text-teal">' + icon(r[0], 19) + '</span><span class="flex-1"><span class="' + MICRO + '">' + r[1] + '</span><br><b class="text-[13.5px] text-ink">' + esc(r[2]) + "</b></span></div>";
+    }).join('<div class="h-3.5"></div>');
+    return '<div class="flex gap-3.5 items-start justify-between mb-[18px]"><div><h1 class="' + PH1 + '">The person behind the plan</h1><p class="text-mute mt-2">Your story matters. Every part of it.</p></div></div>' +
+      '<div class="grid gap-4 md:grid-cols-2"><div><div class="' + CARD + '"><div class="flex gap-4 items-center"><span class="w-[68px] h-[68px] rounded-[23px] bg-[#E9DFCE] grid place-items-center font-extrabold text-[26px] text-[#756044] shrink-0">P</span><span><b class="text-[22px] text-ink">' + esc(p.name) + '</b><br><span class="' + MICRO + '">' + esc(p.role) + "<br>" + '<span class="inline-flex items-center gap-1">' + icon("pin", 12) + " " + esc(p.location) + "</span></span></span></div>" +
+      '<div class="mt-3.5">' + pill("A new chapter, on your terms", { icon: "sparkle" }) + "</div></div>" +
+      '<h3 class="text-ink font-extrabold text-[19px] my-[22px] mb-2.5">Where you want to go</h3><div class="' + CARD + ' bg-deep border-deep"><div class="text-xs text-[#C1D3C9]">Your career goal</div><div class="text-white text-[22px] font-extrabold">' + esc(p.goal) + '</div><div class="text-xs text-[#C1D3C9]">Build on your experience. Keep moving forward.</div></div>' +
+      '<h3 class="text-ink font-extrabold text-[19px] my-[22px] mb-2.5">What you bring</h3><div class="flex gap-2 flex-wrap">' + (p.strengths.length ? p.strengths.map(function (s) { return pill(esc(s), { white: true }); }).join("") : "<span class='" + MICRO + "'>Add strengths whenever you\u2019re ready.</span>") + "</div></div>" +
+      '<div><h3 class="text-ink font-extrabold text-[19px] m-0">Your real-life priorities</h3><div class="' + CARD + ' mt-3">' + rows + "</div>" +
+      '<h3 class="text-ink font-extrabold text-[19px] my-[22px] mb-1.5">How you learn best</h3><p class="' + MICRO + '">Support that helps you thrive. Always your choice to share.</p><div class="flex gap-2 flex-wrap mt-2.5">' + (p.support.length ? p.support.map(function (s) { return pill(esc(s), { icon: "heart" }); }).join("") : "<span class='" + MICRO + "'>No support preferences shared.</span>") + "</div>" +
+      '<div class="grid gap-2.5 mt-[22px]"><a class="' + BS + '" href="#/edit-profile">' + icon("note", 17) + " Edit my profile</a></div>" +
+      '<div class="mt-3.5">' + notice("This is Priya\u2019s sample profile. Changes stay in this browser demo until you reset.") + '</div><button class="' + BG + ' mt-2" onclick="PW.askReset()">' + icon("reset", 17) + " Reset demo</button></div></div>" +
       resetModal();
   }
   function resetModal() {
     if (!_confirmReset) return "";
-    return '<div class="modal-veil" onclick="if(event.target===this)PW.askReset(false)"><div class="modal" role="dialog" aria-modal="true" aria-label="Reset demo"><h3 style="margin-top:0">Start a fresh chapter?</h3><p style="color:var(--muted)">This resets your demo profile, selected pathway, saved opportunities, and completed steps.</p><div style="display:grid;gap:10px"><button class="btn btn-primary" onclick="PW.doReset()">Reset and start over</button><button class="btn btn-ghost" onclick="PW.askReset(false)">Keep exploring</button></div></div></div>';
+    return '<div class="fixed inset-0 bg-[rgba(12,34,27,.45)] grid place-items-center p-[22px] z-[100]" onclick="if(event.target===this)PW.askReset(false)"><div class="bg-white rounded-3xl p-[26px] max-w-[420px] w-full shadow-pop" role="dialog" aria-modal="true" aria-label="Reset demo"><h3 class="mt-0 text-ink font-extrabold text-[19px]">Start a fresh chapter?</h3><p class="text-mute">This resets your demo profile, selected pathway, saved opportunities, and completed steps.</p><div class="grid gap-2.5"><button class="' + BP + '" onclick="PW.doReset()">Reset and start over</button><button class="' + BG + '" onclick="PW.askReset(false)">Keep exploring</button></div></div></div>';
   }
 
   function vEditProfile() {
@@ -709,22 +743,22 @@
     function multi(list, sel, fn) {
       return list.map(function (v) { return choiceBtn(v, null, sel.indexOf(v) >= 0, fn + "('" + v.replace(/'/g, "\\'") + "')"); }).join("");
     }
-    return '<div class="back-row"><a class="btn btn-white btn-sm" href="#/profile">' + icon("back", 16) + " Profile</a></div>" +
-      '<div class="micro">Make it yours</div><h1 style="font-size:32px;letter-spacing:-1px;margin:4px 0 8px">You know yourself best.</h1><p style="color:var(--muted)">Adjust this sample profile. Your pathways will reflect the priorities you choose.</p>' +
-      '<div class="card" style="margin-top:16px"><span class="field-label" style="margin-top:0">Your next career goal</span><div style="display:grid;gap:8px">' + goalBtn("Data analyst") + goalBtn("Business analyst") + goalBtn("Reporting specialist") + "</div>" +
-      '<label class="field-label" for="f-budget">Total learning budget (\u20B9)</label><input id="f-budget" class="input" inputmode="numeric" maxlength="6" value="' + esc(e.budget) + '" oninput="PW.editField(\'budget\',this.value)" />' +
-      '<label class="field-label" for="f-hours">Study hours per week</label><input id="f-hours" class="input" inputmode="numeric" maxlength="2" value="' + esc(e.hours) + '" oninput="PW.editField(\'hours\',this.value)" />' +
-      '<span class="field-label">Location flexibility</span><div style="display:grid;gap:8px">' + choiceBtn("Stay near home", null, !d.relocate, "PW.editRelocate(false)") + choiceBtn("Open to relocating", null, !!d.relocate, "PW.editRelocate(true)") + "</div>" +
-      '<span class="field-label">Income priority</span><div style="display:grid;gap:8px">' + choiceBtn("Keep earning while I learn", null, !d.earnSoon, "PW.editEarn(false)") + choiceBtn("Explore earlier earning", null, !!d.earnSoon, "PW.editEarn(true)") + "</div>" +
-      '<span class="field-label">Strengths to build on</span><div style="display:grid;gap:8px">' + multi(STRENGTH_OPTIONS, d.strengths, "PW.editStrength") + "</div>" +
-      '<span class="field-label">Support that helps you (optional)</span><p class="micro">Choose what makes learning work for you. You don\u2019t need to share a diagnosis.</p><div style="display:grid;gap:8px">' + multi(SUPPORT_OPTIONS, d.support, "PW.editSupport") + "</div>" +
-      '<button class="btn btn-ghost" onclick="PW.editNoSupport()">Prefer not to share support needs</button>' +
-      (e.error ? '<div style="margin-top:12px">' + notice(esc(e.error), true) + "</div>" : "") +
-      '<button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="PW.editSave()">' + icon("check", 17) + " Save my profile</button></div>";
+    return '<div class="mb-4"><a class="' + BW + BSM + '" href="#/profile">' + icon("back", 16) + " Profile</a></div>" +
+      '<div class="' + MICRO + '">Make it yours</div><h1 class="text-[32px] tracking-[-1px] my-1 mb-2 font-extrabold">You know yourself best.</h1><p class="text-mute">Adjust this sample profile. Your pathways will reflect the priorities you choose.</p>' +
+      '<div class="' + CARD + ' mt-4"><span class="' + FLD + ' !mt-0">Your next career goal</span><div class="grid gap-2">' + goalBtn("Data analyst") + goalBtn("Business analyst") + goalBtn("Reporting specialist") + "</div>" +
+      '<label class="' + FLD + '" for="f-budget">Total learning budget (\u20B9)</label><input id="f-budget" class="' + INP + '" inputmode="numeric" maxlength="6" value="' + esc(e.budget) + '" oninput="PW.editField(\'budget\',this.value)" />' +
+      '<label class="' + FLD + '" for="f-hours">Study hours per week</label><input id="f-hours" class="' + INP + '" inputmode="numeric" maxlength="2" value="' + esc(e.hours) + '" oninput="PW.editField(\'hours\',this.value)" />' +
+      '<span class="' + FLD + '">Location flexibility</span><div class="grid gap-2">' + choiceBtn("Stay near home", null, !d.relocate, "PW.editRelocate(false)") + choiceBtn("Open to relocating", null, !!d.relocate, "PW.editRelocate(true)") + "</div>" +
+      '<span class="' + FLD + '">Income priority</span><div class="grid gap-2">' + choiceBtn("Keep earning while I learn", null, !d.earnSoon, "PW.editEarn(false)") + choiceBtn("Explore earlier earning", null, !!d.earnSoon, "PW.editEarn(true)") + "</div>" +
+      '<span class="' + FLD + '">Strengths to build on</span><div class="grid gap-2">' + multi(STRENGTH_OPTIONS, d.strengths, "PW.editStrength") + "</div>" +
+      '<span class="' + FLD + '">Support that helps you (optional)</span><p class="' + MICRO + ' mb-3">Choose what makes learning work for you. You don\u2019t need to share a diagnosis.</p><div class="grid gap-2">' + multi(SUPPORT_OPTIONS, d.support, "PW.editSupport") + "</div>" +
+      '<button class="' + BG + '" onclick="PW.editNoSupport()">Prefer not to share support needs</button>' +
+      (e.error ? '<div class="mt-3">' + notice(esc(e.error), true) + "</div>" : "") +
+      '<button class="' + BP + ' w-full mt-4" onclick="PW.editSave()">' + icon("check", 17) + " Save my profile</button></div>";
   }
 
   function vNotFound() {
-    return '<div class="card" style="text-align:center;padding:48px 24px"><h1>That page isn\u2019t in the demo</h1><p class="micro">Explore the sample pathways instead.</p><div class="cta-row" style="justify-content:center"><a class="btn btn-primary" href="#/paths">View pathways</a><a class="btn btn-secondary" href="#/">Landing</a></div></div>';
+    return '<div class="' + CARD + ' text-center px-6 py-12"><h1 class="text-ink font-extrabold">That page isn\u2019t in the demo</h1><p class="' + MICRO + '">Explore the sample pathways instead.</p><div class="' + CTA + ' justify-center"><a class="' + BP + '" href="#/paths">View pathways</a><a class="' + BS + '" href="#/">Landing</a></div></div>';
   }
 
   /* ---------------- router ---------------- */
@@ -792,13 +826,13 @@
     menu: function (open) { _menu = !!open; route(); },
     compare: function (on) { _compare = !!on; route(); },
     discard: function () { _whatif = null; if (history.length > 1) history.back(); else location.hash = "#/home"; },
-    makeActive: function (id) { doPath(id); toast(id === state.activePath ? "Active path updated" : "Active path updated"); location.hash = "#/next-steps"; route(); },
+    makeActive: function (id) { doPath(id); toast("Active path updated"); location.hash = "#/next-steps"; route(); },
     toggleSave: function (id) { doSave(id); toast(state.saved.indexOf(id) >= 0 ? "Saved for later" : "Removed from saved"); route(); },
     toggleTask: function (id) { doTask(id); toast(state.completed.indexOf(id) >= 0 ? "Step complete — nice." : "Marked incomplete"); route(); },
     expandTask: function (id) { _expanded = _expanded === id ? null : id; route(); },
     setFilter: function (f) { _exp.filter = f; route(); },
     toggleSavedOnly: function () { _exp.savedOnly = !_exp.savedOnly; route(); },
-    setQuery: function (v) { _exp.q = v; var list = filteredOpps(); var el = document.getElementById("opp-list"); if (el) { el.innerHTML = !list.length ? "<div class='card' style='text-align:center;padding:44px 20px'><h3>No examples found</h3><p class='micro'>Try \u201CExcel\u201D, \u201CSQL\u201D, or a different category.</p></div>" : '<div class="opps">' + list.map(oppCard).join("") + "</div>"; } },
+    setQuery: function (v) { _exp.q = v; var list = filteredOpps(); var el = document.getElementById("opp-list"); if (el) { el.innerHTML = !list.length ? "<div class='" + CARD + " text-center px-5 py-11'><h3 class='text-ink font-extrabold text-[19px]'>No examples found</h3><p class='" + MICRO + "'>Try \u201CExcel\u201D, \u201CSQL\u201D, or a different category.</p></div>" : '<div class="grid gap-3.5 md:grid-cols-2">' + list.map(oppCard).join("") + "</div>"; } },
     clearQuery: function () { _exp.q = ""; route(); },
     /* advisor */
     advPick: function (i) { var q = QUESTIONS[_adv.stage]; if (q) advAnswer(q.options[i], false); },

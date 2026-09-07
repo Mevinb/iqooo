@@ -12,7 +12,9 @@
     "test": "tsx --test tests/*.test.ts",
     "export:web": "expo export --platform web",
     "export:native": "expo export --platform android --platform ios",
-    "test:ui": "playwright test"
+    "test:ui": "playwright test",
+    "website": "serve website -l 8080",
+    "website:preview": "serve website -l 8080 --no-clipboard"
   },
   "dependencies": {
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
@@ -40,6 +42,7 @@
     "@playwright/test": "^1.58.0",
     "@types/node": "^22.20.1",
     "@types/react": "~19.2.0",
+    "serve": "^14.2.5",
     "tsx": "^4.20.0",
     "typescript": "~6.0.3"
   }

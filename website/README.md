@@ -4,27 +4,43 @@ A frontend-only website mirror of the PATHWISE mobile prototype. Same sample jou
 
 ## Run it
 
-Any static server works. From the repo root:
+With npm (from the repo root):
 
 ```bash
-cd website
-python3 -m http.server 8080
+npm install
+npm run website
 # open http://localhost:8080/
 ```
 
-Or:
+That serves the `website/` folder with the `serve` static server (already in
+`devDependencies`). If port 8080 is busy, `serve` prints the port it picked
+instead — open that URL.
 
-```bash
-npx serve website
-```
-
-You can also double-click `website/index.html` — everything runs client-side (Google Fonts needs internet; the demo works offline with system fonts).
+Any other static server works too. You can also double-click
+`website/index.html` — everything runs client-side (Tailwind CDN + Google
+Fonts need internet; the demo logic itself runs fully client-side).
 
 ## What is inside
 
-- `index.html` — shell, meta, font + stylesheet wiring
-- `styles.css` — design tokens mirrored from `src/theme.ts` (`#F5F8F7`, `#116B5A`, `#143F35`, …), responsive landing + app layouts
+- `index.html` — shell, meta, font + Tailwind CDN wiring
+- `styles.css` — only the bits awkward as utilities (skip link, focus ring, entrance animation, reduced-motion). All visual styling is Tailwind
 - `app.js` — hash router + demo store + all views. Sample data and rules (`recommend`, `duration`, `fitMessage`, `recommendationReason`, `money`) are ported 1:1 from `src/data/model.ts`
+
+## Styling with Tailwind CSS
+
+The site uses the Tailwind Play CDN (`https://cdn.tailwindcss.com`, no build step).
+Brand tokens from `src/theme.ts` are registered in `tailwind.config` inline in
+`index.html`, so every screen is built from utilities:
+
+- colors: `mist #F5F8F7`, `ink #17342F`, `mute #62746D`, `teal #116B5A` (+ `teal-dark`), `deep #143F35`, `mint #DDEFE8`, `line #DFE7E2`, `honey #8B601B`, `sand #F4ECD9`, `ice #DCE8ED`, `lav #EAE6F1`, `faded #EDF2EE`, `danger #AC3E38`
+- font: `font-jakarta` (Plus Jakarta Sans + system fallback)
+- shadows: `shadow-card`, `shadow-pop`
+- responsive: mobile-first grids (`md:grid-cols-2/3`), sidebar + top nav collapse to a bottom tab bar below `lg`
+
+Shared component classes (buttons, cards, pills, notices, choice rows) live as
+short JS constants at the top of `app.js` (`BP`, `BS`, `BG`, `BW`, `CARD`, …) so
+every view reuses the same Tailwind building blocks. Internet is needed for the
+Tailwind CDN + Google Fonts; the demo logic itself runs fully client-side.
 
 ## Routes (hash-based)
 

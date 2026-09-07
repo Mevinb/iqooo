@@ -9,9 +9,40 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            mist: "#F5F8F7",
+            ink: "#17342F",
+            mute: "#62746D",
+            teal: { DEFAULT: "#116B5A", dark: "#0D5447" },
+            deep: "#143F35",
+            mint: "#DDEFE8",
+            line: "#DFE7E2",
+            honey: "#8B601B",
+            sand: "#F4ECD9",
+            ice: "#DCE8ED",
+            lav: "#EAE6F1",
+            faded: "#EDF2EE",
+            danger: "#AC3E38"
+          },
+          fontFamily: {
+            jakarta: ['"Plus Jakarta Sans"', "system-ui", "-apple-system", '"Segoe UI"', "Roboto", "sans-serif"]
+          },
+          boxShadow: {
+            card: "0 8px 24px rgba(20,63,53,.08)",
+            pop: "0 18px 50px rgba(20,63,53,.10)"
+          }
+        }
+      }
+    };
+  </script>
   <link rel="stylesheet" href="./styles.css" />
 </head>
-<body>
+<body class="bg-mist text-ink font-jakarta text-[15.5px] leading-[1.6] antialiased">
   <a class="skip" href="#main">Skip to content</a>
   <div id="root"></div>
   <div id="modal-root"></div>
