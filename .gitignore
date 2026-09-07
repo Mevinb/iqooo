@@ -64,6 +64,8 @@ coverage/
 playwright-report/
 test-results/
 *.tsbuildinfo
+*-smoke.mjs
+pw-smoke.mjs
 
 # IDEs & Editors
 .idea/
